@@ -1,2 +1,2 @@
-# DMM-impulse-counter
-Impulszähler für das DMM-Board
+# DMM-counter-multimeter
+Impulszähler und Multimeter für das DMM-Board
