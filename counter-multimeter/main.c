@@ -29,12 +29,35 @@ int main(void) {
     LCD_Init();
     UART_Init();
 
+    Backlight_LED(BL_BLUE_ON);
+
+    LCD_PutString_P(PSTR("Counter test"));
+
+    LCD_Update();
+
     time_Init();
     shift_Init();
     counter_Init();
     sei();
 
     while (1) {
-
+        // count impulses on PB0 for one second
+        PORTB |= (1 << PB2);
+        uint32_t freq = counter_MeasureRefGate(CNT_GATE_MS(1000));
+        PORTB &= ~(1 << PB2);
+        // display measurement on lcd
+        char buf[11];
+        buf[10] = '\0';
+        int8_t i;
+        for (i = 9; i >= 0; i--) {
+            buf[i] = (freq % 10) + '0';
+            freq /= 10;
+        }
+        LCD_WipeLine(2);
+        LCD_GotoXY(0, 2);
+        LCD_PutString_P(PSTR("HZ:"));
+        LCD_PutString(buf);
+        LCD_Update();
+        time_Waitms(200);
     }
 }
