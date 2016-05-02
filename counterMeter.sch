@@ -21182,7 +21182,7 @@ grid 5.08 mm</description>
 <part name="D12" library="diode" deviceset="1N4004" device="" value="1N4001"/>
 <part name="D13" library="diode" deviceset="1N4004" device="" value="1N4001"/>
 <part name="GND7" library="supply1" deviceset="GND" device=""/>
-<part name="F2" library="special" deviceset="FUSE2P" device=""/>
+<part name="F2" library="special" deviceset="FUSE2P" device="" value="315mA"/>
 <part name="C23" library="rcl" deviceset="CPOL-EU" device="E2-5" value="10µ"/>
 </parts>
 <sheets>
@@ -22288,6 +22288,10 @@ grid 5.08 mm</description>
 <pinref part="R9" gate="G$1" pin="2"/>
 <pinref part="J4" gate="G$1" pin="1"/>
 <wire x1="-12.7" y1="83.82" x2="-10.16" y2="83.82" width="0.1524" layer="91"/>
+<pinref part="J4" gate="G$1" pin="2"/>
+<wire x1="-12.7" y1="78.74" x2="-10.16" y2="78.74" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="78.74" x2="-10.16" y2="83.82" width="0.1524" layer="91"/>
+<junction x="-10.16" y="83.82"/>
 </segment>
 </net>
 <net name="N$10" class="0">
