@@ -8,7 +8,7 @@
  * have the same functionality. Take care not to read from
  * the uart in other program parts.
  */
-// #define CNT_SIMULATION
+#define CNT_SIMULATION
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
