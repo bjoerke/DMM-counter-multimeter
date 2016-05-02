@@ -1,10 +1,23 @@
 #ifndef COUNTER_H_
 #define COUNTER_H_
+/*
+ * uncomment to simulate counter functionality:
+ * Instead of applying an actual signal, the signal
+ * frequency is given via uart (signal frequency in ASCII
+ * followed by '\n'). From the outside, all functions still
+ * have the same functionality. Take care not to read from
+ * the uart in other program parts.
+ */
+// #define CNT_SIMULATION
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "systime.h"
 #include "shiftreg.h"
+#ifdef CNT_SIMULATION
+#include "includes/uart.h"
+#include <stdlib.h>
+#endif
 
 #define CNT_GATE_CLOSED         0
 #define CNT_GATE_OPENING        1
@@ -70,6 +83,11 @@ struct {
     uint32_t sigGateOpenCnt;
     uint32_t sigGateCloseCnt;
     uint8_t prescaler;
+#ifdef CNT_SIMULATION
+    uint32_t inputFrequency;
+    char uartInBuf[20];
+    uint8_t uartInBufPos;
+#endif
 } counter;
 
 /*
@@ -171,5 +189,9 @@ uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout);
  * know what you are doing.
  */
 void counter_SelectMux(uint8_t mux);
+
+#ifdef CNT_SIMULATION
+void counter_SimUARTInput(uint8_t c);
+#endif
 
 #endif /* COUNTER_H_ */

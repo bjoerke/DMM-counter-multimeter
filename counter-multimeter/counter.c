@@ -16,6 +16,7 @@ void counter_Init(void) {
     shift_Set(CNT_HFSEL2_SHIFT);
     shift_Clear(CNT_INPUTSEL_SHIFT);
     counter_SelectMux(CNT_MUX_TTL);
+    counter.prescaler = 1;
 
     counter_RefInternal();
     // setup timer 0 with T0 as clock source
@@ -88,6 +89,21 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
         // maximum gate time is 131070000 ticks or 65.535 seconds
         return 0;
     }
+#ifdef CNT_SIMULATION
+    // calculate input pin frequency
+    uint64_t pinFreq = counter.inputFrequency / counter.prescaler;
+    // account for aliasing
+    pinFreq = pinFreq % F_CPU;
+    if (pinFreq > F_CPU / 2) {
+        pinFreq = F_CPU - pinFreq;
+    }
+    // calculate pin changes during measurement window
+    pinFreq *= ticks;
+    pinFreq /= 2000000UL;
+    // simulate measurement time
+    time_Waitms(ticks / 2000);
+    return pinFreq;
+#else
     // reset impulse counter
     shift_ClearAndUpdate(CNT_RESET_SHIFT);
     // this is interrupt-save because hardware counter is stopped at the moment
@@ -121,7 +137,7 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
     // wait for the double buffered register to update
     uint16_t buf = counter_GetRefOvfs();
     while (buf == counter_GetRefOvfs())
-        ;
+    ;
 //    // reset timer
 //    TCNT1 = 0;
     // reset reference overflow counter
@@ -136,13 +152,13 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
     TIMSK1 |= (1 << OCIE1B);
     // wait for gate to open
     while (counter.refGateStatus != CNT_GATE_OPEN)
-        ;
+    ;
     TIMSK1 &= ~(1 << OCIE1B);
     // prepare gate close compare match
     OCR1B = stopOCR;
     // wait for timer to finish overflows
     while (counter_GetRefOvfs() != overflows)
-        ;
+    ;
     // enable compare match pin functionality
     // start hardware signal counter as soon as gate opens
     TCCR1A &= ~(1 << COM1B0);
@@ -152,7 +168,7 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
     TIMSK1 |= (1 << OCIE1B);
     // wait for gate to close
     while (counter.refGateStatus != CNT_GATE_CLOSED)
-        ;
+    ;
     // keep pin low even after disabling compare match action
     TCCR1A &= ~((1 << COM1B1) | (1 << COM1B0));
     TIMSK1 &= ~(1 << OCIE1B);
@@ -165,15 +181,42 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
     uint32_t signalPulses = counter.signalOverflows * 256;
     signalPulses += TCNT0;
     return signalPulses;
+#endif
 }
 
 uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
+#ifdef CNT_SIMULATION
+    // calculate input pin frequency
+    uint32_t pinFreq = counter.inputFrequency / counter.prescaler;
+    // account for aliasing
+    pinFreq = pinFreq % F_CPU;
+    if (pinFreq > F_CPU / 2) {
+        pinFreq = F_CPU - pinFreq;
+    }
+    // calculate time between pinchanges (in ns)
+    uint32_t timeDiffEdgens = 500000000UL / pinFreq;
+    uint32_t timeDiffms = timeDiffEdgens / 1000;
+    timeDiffms *= edges;
+    timeDiffms /= 1000;
+    if (timeDiffms >= timeout) {
+        // timeout occured
+        time_Waitms(timeout);
+        return 0;
+    } else {
+        time_Waitms(timeDiffms);
+        // calculate reference timer ticks
+        timeDiffEdgens *= edges;
+        // reference timer does one step each 500ns
+        timeDiffEdgens /= 500;
+        return timeDiffEdgens;
+    }
+#else
     // setup input capture functionality at ICP3
     // start with rising edge
     TCCR1B |= (1 << ICES1);
     uint16_t buf = counter_GetRefOvfs();
     while (buf == counter_GetRefOvfs())
-        ;
+    ;
     // reset reference overflow counter
     // safe because timer has just been reseted
     counter.refOverflows = 0;
@@ -187,7 +230,7 @@ uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
     // wait for gate to close (this is happening in Timer3 input capture interrupt)
     while ((counter.sigGateStatus != CNT_GATE_CLOSED)
             && (starttime + timeout > time_Getms()))
-        ;
+    ;
     TIMSK1 &= ~(1 << ICIE1);
     if (counter.sigGateStatus != CNT_GATE_CLOSED) {
         // timeout has occured
@@ -201,12 +244,14 @@ uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
         // calculate passed time
         return counter.sigGateCloseCnt - counter.sigGateOpenCnt;
     }
+#endif
 }
 
 void counter_SelectInput(uint8_t in, uint8_t prescaler) {
     switch (in) {
     case CNT_IN_TTL:
         counter_SelectMux(CNT_MUX_TTL);
+        counter.prescaler = 1;
         break;
     case CNT_IN_LF:
         // select LF input signal
@@ -219,21 +264,27 @@ void counter_SelectInput(uint8_t in, uint8_t prescaler) {
         case CNT_LF_PRE_1:
             // no prescaler used, switch to direct LF
             counter_SelectMux(CNT_MUX_LF_DIRECT);
+            counter.prescaler = 1;
             break;
         case CNT_LF_PRE_4:
             counter_SelectMux(CNT_MUX_DIVIDER1);
+            counter.prescaler = 4;
             break;
         case CNT_LF_PRE_8:
             counter_SelectMux(CNT_MUX_DIVIDER2);
+            counter.prescaler = 8;
             break;
         case CNT_LF_PRE_16:
             counter_SelectMux(CNT_MUX_DIVIDER4);
+            counter.prescaler = 16;
             break;
         case CNT_LF_PRE_32:
             counter_SelectMux(CNT_MUX_DIVIDER8);
+            counter.prescaler = 32;
             break;
         case CNT_LF_PRE_64:
             counter_SelectMux(CNT_MUX_DIVIDER16);
+            counter.prescaler = 64;
             break;
         }
         break;
@@ -246,21 +297,25 @@ void counter_SelectInput(uint8_t in, uint8_t prescaler) {
             shift_Set(CNT_HFSEL1_SHIFT);
             shift_Set(CNT_HFSEL2_SHIFT);
             counter_SelectMux(CNT_MUX_DIVIDER1);
+            counter.prescaler = 20;
             break;
         case CNT_HF_PRE_40:
             shift_Set(CNT_HFSEL1_SHIFT);
             shift_Set(CNT_HFSEL2_SHIFT);
             counter_SelectMux(CNT_MUX_DIVIDER2);
+            counter.prescaler = 40;
             break;
         case CNT_HF_PRE_80:
             shift_Set(CNT_HFSEL1_SHIFT);
             shift_Set(CNT_HFSEL2_SHIFT);
             counter_SelectMux(CNT_MUX_DIVIDER4);
+            counter.prescaler = 80;
             break;
         case CNT_HF_PRE_160:
             shift_Set(CNT_HFSEL1_SHIFT);
             shift_Clear(CNT_HFSEL2_SHIFT);
             counter_SelectMux(CNT_MUX_DIVIDER4);
+            counter.prescaler = 160;
             break;
         }
         break;
@@ -292,11 +347,36 @@ void counter_SelectMux(uint8_t mux) {
     shift_Update();
 }
 
+#ifdef CNT_SIMULATION
+void counter_SimUARTInput(uint8_t c) {
+    if (c != '\n') {
+        counter.uartInBuf[counter.uartInBufPos++] = c;
+    } else {
+        // newline received -> interpret input as simulation frequency
+        counter.inputFrequency = strtoul(counter.uartInBuf, 0, 10);
+        // return received freq on uart to detect transmission errors
+        ltoa(counter.inputFrequency, counter.uartInBuf, 10);
+        UART_PutString(counter.uartInBuf);
+        counter.uartInBufPos = 0;
+        uint8_t i = 0;
+        for (i = 0; i < 20; i++) {
+            counter.uartInBuf[i] = 0;
+        }
+    }
+}
+#endif
+
 /*
  * ISR occurs whenever the reference counter reaches its limit.
  * This happens every millisecond
  */ISR(TIMER1_COMPA_vect) {
     counter.refOverflows++;
+#ifdef CNT_SIMULATION
+    int16_t c = UART_GetChar();
+    if (c >= 0) {
+        counter_SimUARTInput(c);
+    }
+#endif
 }
 
 /*
