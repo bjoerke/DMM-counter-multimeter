@@ -1,47 +1,47 @@
-Bestellnr;Bezeichnung;Anzahl;Preis in €;Preis/Stck.;Link
-2356154;Stiftleiste 1x03;1;0,14;0,14;http://de.farnell.com/wurth-elektronik/61300311121/stiftleiste-2-54mm-tht-vertikal/dp/2356154
-7992033;Buchse 2x20;2;5,5;2,75;http://de.farnell.com/harwin/m20-7832046/buchse-0-1-pcb-20-20-pol/dp/7992033
-2364018;Strommesswiderstand 20m;1;1,15;1,15;http://de.farnell.com/ohmite/mcs3264r020fer/strommesswiderstand-2w-r02-1/dp/2364018
-2141505;Chipwiderstand 1R;10;0,012;0,0012;http://de.farnell.com/multicomp/mc0063w060311r0/dickschichtwiderstand-1r-1-0-063w/dp/2141505
-2069808;HF-/Koaxialsteckverbinder 50Ohm;2;1,81;0,905;de.farnell.com/multicomp/1712350/buchse-bnc-pcb-r-a-bulk/dp/2069808
-9330364;Chipwiderstand 100R;11;0,0132;0,0012;http://de.farnell.com/multicomp/mc0063w06031100r/dickschichtwiderst-100r-1-0-063w/dp/9330364
-2447226;Chipwiderstand 100k;10;0,035;0,0035;http://de.farnell.com/multicomp/mcwr06x1003ftl/dickschichtwiderstand-100k-1-0/dp/2447226
-2496834;Keramikvielschichtkondensator 100nF;12;0,0948;0,0079;http://de.farnell.com/walsin/0603b104k500ct/kondensator-mlcc-x7r-0-1uf-50v/dp/2496834
-2447230;Chipwiderstand 10k;19;0,0665;0,0035;http://de.farnell.com/multicomp/mcwr06x1002ftl/dickschichtwiderstand-10k-1-0/dp/2447230
-1703794;Trimmpotentiometer 10k;2;3,48;1,74;http://de.farnell.com/bi-technologies-tt-electronics/67wr10klf/trimmpotentiometer-10k-20-gang/dp/1703794
-9451056;Elektrolytkondensator 10uF;4;0,1732;0,0433;de.farnell.com/multicomp/mcgpr16v106m5x11/alu-elko-10uf-16v-radial/dp/9451056
-1171000;Chipwiderstand 140k;10;0,015;0,0015;http://de.farnell.com/multicomp/mc0063w06031140k/dickschichtwiderst-140k-1-0-063w/dp/1171000
-2496887;Keramikvielschichtkondensator 15pF;10;0,074;0,0074;http://de.farnell.com/walsin/0603n150j500ct/kondensator-mlcc-np0-15pf-50v/dp/2496887
-9330410;Chipwiderstand 1M;10;0,012;0,0012;http://de.farnell.com/multicomp/mc0063w060311m/dickschichtwiderstand-1m-1-0-063w/dp/9330410
-1651089;Diode 1N4001;2;0,208;0,104;de.farnell.com/american-power-devices/1n4001/diode-netzgleichrichter-35v-1a/dp/1651089
-2073348;Chipwiderstand 1k;10;0,142;0,0142;http://de.farnell.com/multicomp/mcmr06x1001ftl/keramikwiderstand-1k-1-0-1w-0603/dp/2073348
-2496917;Keramikvielschichtkondensator 1uF;10;0,157;0,0157;http://de.farnell.com/walsin/0603x105k160ct/kondensator-mlcc-x5r-1uf-16v-0603/dp/2496917
-1453528;Sicherungshalter;2;0,1176;0,0588;http://de.farnell.com/schurter/0751-0110/sicherungshalter-pcb-mount/dp/1453528
-1123085;Sicherungseinsatz 315mA;1;0,147;0,147;http://de.farnell.com/bussmann-by-eaton/s500-315-r/sicherung-5x20-flink-glasrohr/dp/1123085
-9331018;Chipwiderstand 330R;10;0,012;0,0012;http://de.farnell.com/multicomp/mc0063w06031330r/dickschichtwiderst-330r-1-0-063w/dp/9331018
-1466524;Kleinsignaldiode 1n4148WS;11;0,6512;0,0592;http://de.farnell.com/multicomp/1n4148ws/diode-high-speed-100v-0-15a-sod323/dp/1466524
-1170849;Chipwiderstand 4k02;10;0,013;0,0013;http://de.farnell.com/multicomp/mc0063w060314k02/dickschichtwiderst-4k02-1-0-063w/dp/1170849
-1170868;Chipwiderstand 6k04;10;0,015;0,0015;http://de.farnell.com/multicomp/mc0063w060316k04/dickschichtwiderst-6k04-1-0-063w/dp/1170868
-1014141;74AC14D;1;0,529;0,529;http://de.farnell.com/fairchild-semiconductor/74ac14sc/74ac-cmos-smd-74ac14-soic14/dp/1014141
-1739959;CD74HCT390M;1;0,517;0,517;http://de.farnell.com/texas-instruments/cd74hct390m/logik-dual-decade-rip-contr-16soic/dp/1739959
-2499850;CD74AC74M96;1;0,387;0,387;http://de.farnell.com/texas-instruments/cd74ac74m96/d-flipflop-2fach-10ns-soic-14/dp/2499850
-2445297;74HC151D;1;0,438;0,438;http://de.farnell.com/nxp/74hc151d-q100-118/multiplexer-einfach-8-eing-soic/dp/2445297
-2445201;74HC595D;2;0,76;0,38;http://de.farnell.com/nxp/74hc595d-q100-118/schieberegister-8bit-sipo-siso/dp/2445201
-2444944;74HC161D;1;0,352;0,352;http://de.farnell.com/nxp/74hc161d-653/bin-rz-hler-4bit-44mhz-soic-16/dp/2444944
-2141561;Chipwiderstand 9R1;10;0,048;0,0048;http://de.farnell.com/multicomp/mc0063w060319r10/dickschichtwiderstand-9r1-1-0/dp/2141561
-1170683;Chipwiderstand 90R9;10;0,016;0,0016;http://de.farnell.com/multicomp/mc0063w0603190r9/dickschichtwiderst-90r9-1-0-063w/dp/1170683
-1170784;Chipwiderstand 909R;10;0,016;0,0016;http://de.farnell.com/multicomp/mc0063w06031909r/dickschichtwiderst-909r-1-0-063w/dp/1170784
-1171083;Chipwiderstand 909k;10;0,016;0,0016;http://de.farnell.com/multicomp/mc0063w06031909k/dickschichtwiderst-909k-1-0-063w/dp/1171083
-1170982;Chipwiderstand 90k9;10;0,015;0,0015;http://de.farnell.com/multicomp/mc0063w0603190k9/dickschichtwiderst-90k9-1-0-063w/dp/1170982
-2141626;Chipwiderstand 9M1;10;0,048;0,0048;http://de.farnell.com/multicomp/mc0063w060319m10/dickschichtwiderstand-9m1-1-0/dp/2141626
-1498686;AD8539ARZ;1;2,57;2,57;http://de.farnell.com/analog-devices/ad8539arz/op-verst-rker-2fach-pr-z-smd-soic8/dp/1498686
-1607239;AD8638ARZ;1;2,52;2,52;http://de.farnell.com/analog-devices/ad8638arz/cmos-amp-16v-auto-zero-8soic/dp/1607239
-2533307;Transistor BC847BLT3G;5;0,145;0,029;http://de.farnell.com/on-semiconductor/bc847blt3g/transistor-bipolar-npn-45v-sot/dp/2533307
-1798068;Transistor BC857A;5;0,3705;0,0741;http://de.farnell.com/multicomp/bc857a/transistor-pnp-0-1a-45v-sot23/dp/1798068
-497332;Prüfbuchse 4mm;1;8,61;8,61;http://de.farnell.com/hirschmann-testmeasurement/973582101/pr-fbuchse-4mm-pcb-rot-pk5-mls/dp/497332
-1175066;Signalrelais IM03TS;5;12,7;2,54;http://de.farnell.com/te-connectivity-axicom/im03ts/signalrelais-dpdt-250vac-220vdc/dp/1175066
-2516682;MAX871;1;1,73;1,73;http://de.farnell.com/maxim-integrated-products/max871euk-t/ladepumpe-invert-0-025a-sot-23/dp/2516682
-2515076;MAX9201;1;5,08;5,08;http://de.farnell.com/maxim-integrated-products/max9201ese/komparator-4fach-7ns-nsoic/dp/2515076
-2323647;Spannungsregler TLV1117;1;0,535;0,535;http://de.farnell.com/texas-instruments/tlv1117lv33dcyr/ldo-fest-3-3v-1a-sot-223-4/dp/2323647
-1287414;SN74LVC2G157DCTR;1;0,365;0,365;http://de.farnell.com/texas-instruments/sn74lvc2g157dctr/daten-selektor-mux-smd-ssop8/dp/1287414
-1607683;Multiplexer  CD74HCT4052M;1;0,353;0,353;http://de.farnell.com/texas-instruments/cd74hct4052m/ic-sm-logik-74hct-multiplexer/dp/1607683
+Bestellnr;Bezeichnung;Anzahl;Preis/Stck.[€];Link
+2356154;Stiftleiste 1x03;1;0,14;http://de.farnell.com/wurth-elektronik/61300311121/stiftleiste-2-54mm-tht-vertikal/dp/2356154
+7992033;Buchse 2x20;2;2,75;http://de.farnell.com/harwin/m20-7832046/buchse-0-1-pcb-20-20-pol/dp/7992033
+2364018;Strommesswiderstand 20m;1;1,15;http://de.farnell.com/ohmite/mcs3264r020fer/strommesswiderstand-2w-r02-1/dp/2364018
+2141505;Chipwiderstand 1R;10;0,0012;http://de.farnell.com/multicomp/mc0063w060311r0/dickschichtwiderstand-1r-1-0-063w/dp/2141505
+2069808;HF-/Koaxialsteckverbinder 50Ohm;2;0,98;http://de.farnell.com/multicomp/13-60-2-dgz/buchse-bnc-right-angle/dp/1712350
+9330364;Chipwiderstand 100R;11;0,0012;http://de.farnell.com/multicomp/mc0063w06031100r/dickschichtwiderst-100r-1-0-063w/dp/9330364
+2447226;Chipwiderstand 100k;10;0,0035;http://de.farnell.com/multicomp/mcwr06x1003ftl/dickschichtwiderstand-100k-1-0/dp/2447226
+2496834;Keramikvielschichtkondensator 100nF;12;0,0079;http://de.farnell.com/walsin/0603b104k500ct/kondensator-mlcc-x7r-0-1uf-50v/dp/2496834
+2447230;Chipwiderstand 10k;19;0,0035;http://de.farnell.com/multicomp/mcwr06x1002ftl/dickschichtwiderstand-10k-1-0/dp/2447230
+1703794;Trimmpotentiometer 10k;2;1,74;http://de.farnell.com/bi-technologies-tt-electronics/67wr10klf/trimmpotentiometer-10k-20-gang/dp/1703794
+9451056;Elektrolytkondensator 10uF;4;0,0433;de.farnell.com/multicomp/mcgpr16v106m5x11/alu-elko-10uf-16v-radial/dp/9451056
+1171000;Chipwiderstand 140k;10;0,0015;http://de.farnell.com/multicomp/mc0063w06031140k/dickschichtwiderst-140k-1-0-063w/dp/1171000
+2496887;Keramikvielschichtkondensator 15pF;10;0,0074;http://de.farnell.com/walsin/0603n150j500ct/kondensator-mlcc-np0-15pf-50v/dp/2496887
+9330410;Chipwiderstand 1M;10;0,0012;http://de.farnell.com/multicomp/mc0063w060311m/dickschichtwiderstand-1m-1-0-063w/dp/9330410
+1651089;Diode 1N4001;2;0,104;de.farnell.com/american-power-devices/1n4001/diode-netzgleichrichter-35v-1a/dp/1651089
+2073348;Chipwiderstand 1k;10;0,0142;http://de.farnell.com/multicomp/mcmr06x1001ftl/keramikwiderstand-1k-1-0-1w-0603/dp/2073348
+2496917;Keramikvielschichtkondensator 1uF;10;0,0157;http://de.farnell.com/walsin/0603x105k160ct/kondensator-mlcc-x5r-1uf-16v-0603/dp/2496917
+1453528;Sicherungshalter;2;0,0588;http://de.farnell.com/schurter/0751-0110/sicherungshalter-pcb-mount/dp/1453528
+1123085;Sicherungseinsatz 315mA;1;0,147;http://de.farnell.com/bussmann-by-eaton/s500-315-r/sicherung-5x20-flink-glasrohr/dp/1123085
+9331018;Chipwiderstand 330R;10;0,0012;http://de.farnell.com/multicomp/mc0063w06031330r/dickschichtwiderst-330r-1-0-063w/dp/9331018
+1466524;Kleinsignaldiode 1n4148WS;11;0,0592;http://de.farnell.com/multicomp/1n4148ws/diode-high-speed-100v-0-15a-sod323/dp/1466524
+1170849;Chipwiderstand 4k02;10;0,0013;http://de.farnell.com/multicomp/mc0063w060314k02/dickschichtwiderst-4k02-1-0-063w/dp/1170849
+1170868;Chipwiderstand 6k04;10;0,0015;http://de.farnell.com/multicomp/mc0063w060316k04/dickschichtwiderst-6k04-1-0-063w/dp/1170868
+1014141;74AC14D;1;0,529;http://de.farnell.com/fairchild-semiconductor/74ac14sc/74ac-cmos-smd-74ac14-soic14/dp/1014141
+1739959;CD74HCT390M;1;0,517;http://de.farnell.com/texas-instruments/cd74hct390m/logik-dual-decade-rip-contr-16soic/dp/1739959
+2499850;CD74AC74M96;1;0,387;http://de.farnell.com/texas-instruments/cd74ac74m96/d-flipflop-2fach-10ns-soic-14/dp/2499850
+2445297;74HC151D;1;0,438;http://de.farnell.com/nxp/74hc151d-q100-118/multiplexer-einfach-8-eing-soic/dp/2445297
+2445201;74HC595D;2;0,38;http://de.farnell.com/nxp/74hc595d-q100-118/schieberegister-8bit-sipo-siso/dp/2445201
+2444944;74HC161D;1;0,352;http://de.farnell.com/nxp/74hc161d-653/bin-rz-hler-4bit-44mhz-soic-16/dp/2444944
+2141561;Chipwiderstand 9R1;10;0,0048;http://de.farnell.com/multicomp/mc0063w060319r10/dickschichtwiderstand-9r1-1-0/dp/2141561
+1170683;Chipwiderstand 90R9;10;0,0016;http://de.farnell.com/multicomp/mc0063w0603190r9/dickschichtwiderst-90r9-1-0-063w/dp/1170683
+1170784;Chipwiderstand 909R;10;0,0016;http://de.farnell.com/multicomp/mc0063w06031909r/dickschichtwiderst-909r-1-0-063w/dp/1170784
+1171083;Chipwiderstand 909k;10;0,0016;http://de.farnell.com/multicomp/mc0063w06031909k/dickschichtwiderst-909k-1-0-063w/dp/1171083
+1170982;Chipwiderstand 90k9;10;0,0015;http://de.farnell.com/multicomp/mc0063w0603190k9/dickschichtwiderst-90k9-1-0-063w/dp/1170982
+2141626;Chipwiderstand 9M1;10;0,0048;http://de.farnell.com/multicomp/mc0063w060319m10/dickschichtwiderstand-9m1-1-0/dp/2141626
+1498686;AD8539ARZ;1;2,57;http://de.farnell.com/analog-devices/ad8539arz/op-verst-rker-2fach-pr-z-smd-soic8/dp/1498686
+1607239;AD8638ARZ;1;2,52;http://de.farnell.com/analog-devices/ad8638arz/cmos-amp-16v-auto-zero-8soic/dp/1607239
+2533307;Transistor BC847BLT3G;5;0,029;http://de.farnell.com/on-semiconductor/bc847blt3g/transistor-bipolar-npn-45v-sot/dp/2533307
+1798068;Transistor BC857A;5;0,0741;http://de.farnell.com/multicomp/bc857a/transistor-pnp-0-1a-45v-sot23/dp/1798068
+497332;Prüfbuchse 4mm;1;8,61;http://de.farnell.com/hirschmann-testmeasurement/973582101/pr-fbuchse-4mm-pcb-rot-pk5-mls/dp/497332
+1175066;Signalrelais IM03TS;5;2,54;http://de.farnell.com/te-connectivity-axicom/im03ts/signalrelais-dpdt-250vac-220vdc/dp/1175066
+2516682;MAX871;1;1,73;http://de.farnell.com/maxim-integrated-products/max871euk-t/ladepumpe-invert-0-025a-sot-23/dp/2516682
+2515076;MAX9201;1;5,08;http://de.farnell.com/maxim-integrated-products/max9201ese/komparator-4fach-7ns-nsoic/dp/2515076
+2323647;Spannungsregler TLV1117;1;0,535;http://de.farnell.com/texas-instruments/tlv1117lv33dcyr/ldo-fest-3-3v-1a-sot-223-4/dp/2323647
+1287414;SN74LVC2G157DCTR;1;0,365;http://de.farnell.com/texas-instruments/sn74lvc2g157dctr/daten-selektor-mux-smd-ssop8/dp/1287414
+1607683;Multiplexer  CD74HCT4052M;1;0,353;http://de.farnell.com/texas-instruments/cd74hct4052m/ic-sm-logik-74hct-multiplexer/dp/1607683
