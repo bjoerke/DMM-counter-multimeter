@@ -4,10 +4,10 @@ Bestellnr;Bezeichnung;Anzahl;Preis/Stck.[€];Link
 2364018;Strommesswiderstand 20m;1;1,15;http://de.farnell.com/ohmite/mcs3264r020fer/strommesswiderstand-2w-r02-1/dp/2364018
 2141505;Chipwiderstand 1R;10;0,0012;http://de.farnell.com/multicomp/mc0063w060311r0/dickschichtwiderstand-1r-1-0-063w/dp/2141505
 2069808;HF-/Koaxialsteckverbinder 50Ohm;2;0,98;http://de.farnell.com/multicomp/13-60-2-dgz/buchse-bnc-right-angle/dp/1712350
-9330364;Chipwiderstand 100R;11;0,0012;http://de.farnell.com/multicomp/mc0063w06031100r/dickschichtwiderst-100r-1-0-063w/dp/9330364
+9330364;Chipwiderstand 100R;20;0,0012;http://de.farnell.com/multicomp/mc0063w06031100r/dickschichtwiderst-100r-1-0-063w/dp/9330364
 2447226;Chipwiderstand 100k;10;0,0035;http://de.farnell.com/multicomp/mcwr06x1003ftl/dickschichtwiderstand-100k-1-0/dp/2447226
-2496834;Keramikvielschichtkondensator 100nF;12;0,0079;http://de.farnell.com/walsin/0603b104k500ct/kondensator-mlcc-x7r-0-1uf-50v/dp/2496834
-2447230;Chipwiderstand 10k;19;0,0035;http://de.farnell.com/multicomp/mcwr06x1002ftl/dickschichtwiderstand-10k-1-0/dp/2447230
+2496834;Keramikvielschichtkondensator 100nF;20;0,0079;http://de.farnell.com/walsin/0603b104k500ct/kondensator-mlcc-x7r-0-1uf-50v/dp/2496834
+2447230;Chipwiderstand 10k;20;0,0035;http://de.farnell.com/multicomp/mcwr06x1002ftl/dickschichtwiderstand-10k-1-0/dp/2447230
 1703794;Trimmpotentiometer 10k;2;1,74;http://de.farnell.com/bi-technologies-tt-electronics/67wr10klf/trimmpotentiometer-10k-20-gang/dp/1703794
 9451056;Elektrolytkondensator 10uF;4;0,0433;de.farnell.com/multicomp/mcgpr16v106m5x11/alu-elko-10uf-16v-radial/dp/9451056
 1171000;Chipwiderstand 140k;10;0,0015;http://de.farnell.com/multicomp/mc0063w06031140k/dickschichtwiderst-140k-1-0-063w/dp/1171000
@@ -38,10 +38,11 @@ Bestellnr;Bezeichnung;Anzahl;Preis/Stck.[€];Link
 1607239;AD8638ARZ;1;2,52;http://de.farnell.com/analog-devices/ad8638arz/cmos-amp-16v-auto-zero-8soic/dp/1607239
 2533307;Transistor BC847BLT3G;5;0,029;http://de.farnell.com/on-semiconductor/bc847blt3g/transistor-bipolar-npn-45v-sot/dp/2533307
 1798068;Transistor BC857A;5;0,0741;http://de.farnell.com/multicomp/bc857a/transistor-pnp-0-1a-45v-sot23/dp/1798068
-497332;Prüfbuchse 4mm;1;8,61;http://de.farnell.com/hirschmann-testmeasurement/973582101/pr-fbuchse-4mm-pcb-rot-pk5-mls/dp/497332
 1175066;Signalrelais IM03TS;5;2,54;http://de.farnell.com/te-connectivity-axicom/im03ts/signalrelais-dpdt-250vac-220vdc/dp/1175066
 2516682;MAX871;1;1,73;http://de.farnell.com/maxim-integrated-products/max871euk-t/ladepumpe-invert-0-025a-sot-23/dp/2516682
 2515076;MAX9201;1;5,08;http://de.farnell.com/maxim-integrated-products/max9201ese/komparator-4fach-7ns-nsoic/dp/2515076
 2323647;Spannungsregler TLV1117;1;0,535;http://de.farnell.com/texas-instruments/tlv1117lv33dcyr/ldo-fest-3-3v-1a-sot-223-4/dp/2323647
 1287414;SN74LVC2G157DCTR;1;0,365;http://de.farnell.com/texas-instruments/sn74lvc2g157dctr/daten-selektor-mux-smd-ssop8/dp/1287414
 1607683;Multiplexer  CD74HCT4052M;1;0,353;http://de.farnell.com/texas-instruments/cd74hct4052m/ic-sm-logik-74hct-multiplexer/dp/1607683
+PB 4 RT;Prüfbuchse 4mm, rot;3;1,30;https://www.reichelt.de/Buchsen/PB-4-RT/3/index.html?ACTION=3&GROUPID=5920&ARTICLE=76865&OFFSET=16&
+PB 4 SW;Prüfbuchse 4mm, schwarz;1;1,30;https://www.reichelt.de/Buchsen/PB-4-SW/3/index.html?ACTION=3&GROUPID=5626&ARTICLE=13998&OFFSET=16&
