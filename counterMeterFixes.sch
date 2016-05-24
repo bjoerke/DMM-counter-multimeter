@@ -21085,7 +21085,7 @@ grid 5.08 mm</description>
 <text x="-38.1" y="101.6" size="1.778" layer="94">slow TTL input</text>
 <text x="-38.1" y="-7.62" size="1.778" layer="94">100MHz (LF) input stage</text>
 <text x="-38.1" y="182.88" size="1.778" layer="94">LF/HF Multiplexer (optional)</text>
-<text x="88.9" y="27.94" size="1.778" layer="97">2MHz</text>
+<text x="88.9" y="25.4" size="1.778" layer="97">2MHz</text>
 <wire x1="317.5" y1="157.48" x2="317.5" y2="10.16" width="0.1524" layer="94" style="longdash"/>
 <wire x1="317.5" y1="10.16" x2="350.52" y2="10.16" width="0.1524" layer="94" style="longdash"/>
 <wire x1="350.52" y1="10.16" x2="350.52" y2="157.48" width="0.1524" layer="94" style="longdash"/>
@@ -21355,7 +21355,7 @@ grid 5.08 mm</description>
 <instance part="R53" gate="G$1" x="284.48" y="60.96" rot="R180"/>
 <instance part="R54" gate="G$1" x="284.48" y="53.34" rot="R180"/>
 <instance part="R56" gate="G$1" x="175.26" y="86.36" rot="R180"/>
-<instance part="R60" gate="G$1" x="101.6" y="27.94" rot="R180"/>
+<instance part="R60" gate="G$1" x="101.6" y="25.4" rot="R180"/>
 <instance part="IC6" gate="A" x="612.14" y="231.14"/>
 <instance part="IC7" gate="A" x="612.14" y="193.04"/>
 <instance part="P+24" gate="VCC" x="596.9" y="246.38"/>
@@ -22366,10 +22366,10 @@ grid 5.08 mm</description>
 </net>
 <net name="REF" class="0">
 <segment>
-<pinref part="IC5" gate="A" pin="QB"/>
-<wire x1="83.82" y1="27.94" x2="96.52" y2="27.94" width="0.1524" layer="91"/>
-<label x="88.9" y="25.4" size="1.778" layer="95"/>
+<wire x1="83.82" y1="25.4" x2="96.52" y2="25.4" width="0.1524" layer="91"/>
+<label x="88.9" y="22.86" size="1.778" layer="95"/>
 <pinref part="R60" gate="G$1" pin="2"/>
+<pinref part="IC5" gate="A" pin="QC"/>
 </segment>
 </net>
 <net name="I_10A" class="0">
@@ -23043,8 +23043,8 @@ grid 5.08 mm</description>
 </segment>
 <segment>
 <pinref part="R60" gate="G$1" pin="1"/>
-<wire x1="106.68" y1="27.94" x2="109.22" y2="27.94" width="0.1524" layer="91"/>
-<label x="109.22" y="27.94" size="1.778" layer="95" xref="yes"/>
+<wire x1="106.68" y1="25.4" x2="109.22" y2="25.4" width="0.1524" layer="91"/>
+<label x="109.22" y="25.4" size="1.778" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="PB2" class="0">
