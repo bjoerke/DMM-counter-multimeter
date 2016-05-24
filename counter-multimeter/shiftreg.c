@@ -39,9 +39,22 @@ void shift_Update(void) {
             SHIFT_IN_PORT &= ~(1 << SHIFT_IN_PIN);
         }
         SHIFT_CLK_PORT |= (1<<SHIFT_CLK_PIN);
+        asm volatile("NOP");
+        asm volatile("NOP");
+        asm volatile("NOP");
+        asm volatile("NOP");
         SHIFT_CLK_PORT &= ~(1<<SHIFT_CLK_PIN);
+        asm volatile("NOP");
+        asm volatile("NOP");
+        asm volatile("NOP");
+        asm volatile("NOP");
+        buf <<= 1;
     }
     // update shift register outputs
     SHIFT_LATCH_PORT |= (1<<SHIFT_LATCH_PIN);
+    asm volatile("NOP");
+    asm volatile("NOP");
+    asm volatile("NOP");
+    asm volatile("NOP");
     SHIFT_LATCH_PORT &= ~(1<<SHIFT_LATCH_PIN);
 }
