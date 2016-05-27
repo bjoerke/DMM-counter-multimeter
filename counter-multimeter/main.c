@@ -13,7 +13,7 @@
 #include "includes/twi.h"
 #include "multimeter.h"
 #include "systime.h"
-#include "counter.h"
+#include "counterHAL.h"
 
 int main(void) {
 	// set PA3-PA7 as input and activated internal Pull-Up

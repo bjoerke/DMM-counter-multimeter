@@ -1,4 +1,4 @@
-#include "counter.h"
+#include "counterHAL.h"
 
 void counter_Init(void) {
     // reference gate enable pin (OC1B)
