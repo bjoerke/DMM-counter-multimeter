@@ -1,1 +1,7 @@
 counter-multimeter/build/*
+counter-multimeter/.atsuo
+counter-multimeter/.vs/
+counter-multimeter/Debug/
+counter-multimeter/counter-multimeter.atsln
+counter-multimeter/counter-multimeter.componentinfo.xml
+counter-multimeter/counter-multimeter.cproj
