@@ -7,5 +7,6 @@ int16_t UART_GetChar (void);
 uint8_t UART_GetChar_Wait (void);
 void UART_PutString (const char *s);
 void UART_PutInteger (const int i);
+void UART_SetDataReceivedListener(void (*listener)(char));
 
 #endif

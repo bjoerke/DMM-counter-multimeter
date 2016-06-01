@@ -16,6 +16,8 @@ uint8_t uart_outbuf[UART_BUFSIZE_OUT];
 fifo_t uart_infifo;
 fifo_t uart_outfifo;
 
+void (*uart_data_received_listener)(char) = NULL;
+
 #ifdef DEBUG
 
 /** select UART 0 (connected to USB) **/
@@ -74,6 +76,12 @@ UART_Init (void)
   fifo_init(&uart_outfifo, uart_outbuf, UART_BUFSIZE_OUT);
 }
 
+void
+UART_SetDataReceivedListener(void(*listener)(char))
+{
+	uart_data_received_listener = listener;
+}
+
 int8_t
 UART_PutChar (const uint8_t c)
 {
@@ -92,7 +100,14 @@ UART_PutChar (const uint8_t c)
 // Receive Interrupt Routine
 ISR(USARTn_RX_vect)
 {
-  fifo_put(&uart_infifo, UDRn);
+  if(uart_data_received_listener == NULL)
+  {
+     fifo_put(&uart_infifo, UDRn);
+  }
+  else
+  {
+	  uart_data_received_listener(UDRn);
+  }
 }
 
 // Data Register Empty Interrupt

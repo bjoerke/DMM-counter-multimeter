@@ -15,6 +15,11 @@
 #include "systime.h"
 #include "counterHAL.h"
 
+void uart_rx_listener(char c)
+{
+	UART_PutChar(c);
+}
+
 int main(void) {
 	// set PA3-PA7 as input and activated internal Pull-Up
 	DDRA &= ~((1 << PINA3) | (1 << PINA4) | (1 << PINA5) | (1 << PINA6)
@@ -110,6 +115,8 @@ int main(void) {
     time_Init();
     shift_Init();
     counter_Init();
+	
+	UART_SetDataReceivedListener(uart_rx_listener);
     sei();
 	
     counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
