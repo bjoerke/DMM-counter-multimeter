@@ -16,6 +16,40 @@ uint8_t uart_outbuf[UART_BUFSIZE_OUT];
 fifo_t uart_infifo;
 fifo_t uart_outfifo;
 
+#ifdef DEBUG
+
+/** select UART 0 (connected to USB) **/
+#define UBRRn   UBRR0
+#define UCSRnA  UCSR0A
+#define UCSRnB  UCSR0B
+#define RXENn   RXEN0
+#define TXENn   TXEN0
+#define RXCIEn  RXCIE0
+#define RXCn    RXC0
+#define TXCn    TXC0
+#define UDRIEn  UDRIE0
+#define USARTn_RX_vect USART0_RX_vect
+#define UDRn   UDR0
+#define USARTn_UDRE_vect USART0_UDRE_vect
+
+#else
+
+/** select UART 1 **/
+#define UBRRn   UBRR1
+#define UCSRnA  UCSR1A
+#define UCSRnB  UCSR1B
+#define RXENn   RXEN1
+#define TXENn   TXEN1
+#define RXCIEn  RXCIE1
+#define RXCn    RXC1
+#define TXCn    TXC1
+#define UDRIEn  UDRIE1
+#define USARTn_RX_vect USART1_RX_vect
+#define UDRn     UDR1
+#define USARTn_UDRE_vect USART1_UDRE_vect
+
+#endif
+
 void
 UART_Init (void)
 {
@@ -24,13 +58,13 @@ UART_Init (void)
   cli();
   
   // Set Baudrate according to datasheet (16MHz -> 9600 Baud -> 103)
-  UBRR0 = 103;
+  UBRRn = 103;
   
   // Enable RX, TX and RX Complete Interrupt
-  UCSR0B = (1 << RXEN0)|(1 << TXEN0)|(1 << RXCIE0);
+  UCSRnB = (1 << RXENn)|(1 << TXENn)|(1 << RXCIEn);
   
   // Reset Complete-Flags
-  UCSR0A = (1 << RXC0)|(1 << TXC0);
+  UCSRnA = (1 << RXCn)|(1 << TXCn);
   
   // Reset Status Register
   SREG = sreg;
@@ -50,24 +84,24 @@ UART_PutChar (const uint8_t c)
   int8_t ret = fifo_put(&uart_outfifo, c);
 
   // Enable DRE Interrupt
-  UCSR0B |= (1 << UDRIE0);
+  UCSRnB |= (1 << UDRIEn);
    
   return ret;
 }
 
 // Receive Interrupt Routine
-ISR(USART0_RX_vect)
+ISR(USARTn_RX_vect)
 {
-  fifo_put(&uart_infifo, UDR0);
+  fifo_put(&uart_infifo, UDRn);
 }
 
 // Data Register Empty Interrupt
-ISR(USART0_UDRE_vect)
+ISR(USARTn_UDRE_vect)
 {
   if (uart_outfifo.count > 0)
-    UDR0 = fifo_get_nowait(&uart_outfifo);
+    UDRn = fifo_get_nowait(&uart_outfifo);
   else
-    UCSR0B &= ~(1 << UDRIE0);
+    UCSRnB &= ~(1 << UDRIEn);
 }
 
 int16_t

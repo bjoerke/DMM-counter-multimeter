@@ -111,7 +111,7 @@ int main(void) {
     shift_Init();
     counter_Init();
     sei();
-
+	
     counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
     while (1) {
         // count impulses on PB0 for one second
@@ -131,6 +131,7 @@ int main(void) {
         LCD_PutString_P(PSTR("HZ:"));
         LCD_PutString(buf);
         LCD_Update();
+		UART_PutString("Hello World!\n");
         time_Waitms(200);
     }
 }
