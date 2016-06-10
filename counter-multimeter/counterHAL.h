@@ -47,6 +47,11 @@
 #define CNT_LF_PRE_32           32
 #define CNT_LF_PRE_64           64
 
+#define CNT_LOWER_PRESCALER_LF(pre)		(pre > 4 ? pre/2 : 1)
+#define CNT_HIGHER_PRESCALER_LF(pre)	(pre < 64 ? (pre < 4 ? 4 : pre*2) : 64)
+#define CNT_LOWEST_PRESCALER_LF			CNT_LF_PRE_1
+#define CNT_HIGHEST_PRESCALER_LF		CNT_LF_PRE_64
+
 //#define CNT_HF_PRE_20           20
 //#define CNT_HF_PRE_40           40
 //#define CNT_HF_PRE_80           80
@@ -75,21 +80,21 @@
 #define CNT_MUX_DIVIDER16       0
 
 struct {
-    volatile uint16_t refOverflows;
-    volatile uint32_t signalOverflows;
-    uint8_t refExternal :1;
-    uint8_t refInternal :1;
-    volatile uint8_t refGateStatus;
-    volatile uint8_t sigGateStatus;
-    uint16_t sigGateEdges;
-    uint32_t sigGateOpenCnt;
-    uint32_t sigGateCloseCnt;
-    uint8_t prescaler;
-    uint8_t input;
+	volatile uint16_t refOverflows;
+	volatile uint32_t signalOverflows;
+	uint8_t refExternal :1;
+	uint8_t refInternal :1;
+	volatile uint8_t refGateStatus;
+	volatile uint8_t sigGateStatus;
+	uint16_t sigGateEdges;
+	uint32_t sigGateOpenCnt;
+	uint32_t sigGateCloseCnt;
+	uint8_t prescaler;
+	uint8_t input;
 #ifdef CNT_SIMULATION
-    uint32_t inputFrequency;
-    char uartInBuf[20];
-    uint8_t uartInBufPos;
+	uint32_t inputFrequency;
+	char uartInBuf[20];
+	uint8_t uartInBufPos;
 #endif
 } counter;
 
@@ -97,10 +102,10 @@ struct {
  * interrupt-save reading of counter.refOverflows
  */
 inline uint16_t counter_GetRefOvfs(void) {
-    TIMSK1 &= ~(1 << OCIE1A);
-    uint16_t buf = counter.refOverflows;
-    TIMSK1 |= (1 << OCIE1A);
-    return buf;
+	TIMSK1 &= ~(1 << OCIE1A);
+	uint16_t buf = counter.refOverflows;
+	TIMSK1 |= (1 << OCIE1A);
+	return buf;
 }
 
 void counter_Init(void);
