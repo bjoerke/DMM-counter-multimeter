@@ -1,5 +1,5 @@
-#ifndef COUNTER_H_
-#define COUNTER_H_
+#ifndef COUNTERHAL_H_
+#define COUNTERHAL_H_
 /*
  * uncomment to simulate counter functionality:
  * Instead of applying an actual signal, the signal
@@ -18,6 +18,8 @@
 #include "includes/uart.h"
 #include <stdlib.h>
 #endif
+
+#define CNT_REF_TIMER_FREQ		2000000UL
 
 #define CNT_GATE_CLOSED         0
 #define CNT_GATE_OPENING        1
