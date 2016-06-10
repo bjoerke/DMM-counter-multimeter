@@ -33,7 +33,7 @@
  */
 #define CNT_IN_TTL			    0
 #define CNT_IN_LF			    1
-#define CNT_IN_HF			    2
+//#define CNT_IN_HF			    2
 
 /*
  * available prescaler at different inputs
@@ -47,10 +47,10 @@
 #define CNT_LF_PRE_32           32
 #define CNT_LF_PRE_64           64
 
-#define CNT_HF_PRE_20           20
-#define CNT_HF_PRE_40           40
-#define CNT_HF_PRE_80           80
-#define CNT_HF_PRE_160          160
+//#define CNT_HF_PRE_20           20
+//#define CNT_HF_PRE_40           40
+//#define CNT_HF_PRE_80           80
+//#define CNT_HF_PRE_160          160
 
 /*
  * positions of the counter pins on the shift registers
@@ -59,8 +59,8 @@
 #define CNT_DIVSEL2_SHIFT       3
 #define CNT_DIVSEL3_SHIFT       4
 #define CNT_RESET_SHIFT         0
-#define CNT_HFSEL1_SHIFT        6
-#define CNT_HFSEL2_SHIFT        5
+//#define CNT_HFSEL1_SHIFT        6
+//#define CNT_HFSEL2_SHIFT        5
 #define CNT_INPUTSEL_SHIFT      1
 
 /*
@@ -85,6 +85,7 @@ struct {
     uint32_t sigGateOpenCnt;
     uint32_t sigGateCloseCnt;
     uint8_t prescaler;
+    uint8_t input;
 #ifdef CNT_SIMULATION
     uint32_t inputFrequency;
     char uartInBuf[20];

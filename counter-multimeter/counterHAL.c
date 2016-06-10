@@ -12,8 +12,8 @@ void counter_Init(void) {
     PORTB |= (1 << PB0) | (1 << PB1);
 
     shift_Clear(CNT_RESET_SHIFT);
-    shift_Set(CNT_HFSEL1_SHIFT);
-    shift_Set(CNT_HFSEL2_SHIFT);
+//    shift_Set(CNT_HFSEL1_SHIFT);
+//    shift_Set(CNT_HFSEL2_SHIFT);
     shift_Clear(CNT_INPUTSEL_SHIFT);
     counter_SelectMux(CNT_MUX_TTL);
     counter.prescaler = 1;
@@ -250,11 +250,13 @@ uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
 void counter_SelectInput(uint8_t in, uint8_t prescaler) {
     switch (in) {
     case CNT_IN_TTL:
+    	counter.input = CNT_IN_TTL;
         counter_SelectMux(CNT_MUX_TTL);
         counter.prescaler = 1;
         break;
     case CNT_IN_LF:
-        // select LF input signal
+    	counter.input = CNT_IN_LF;
+      // select LF input signal
         shift_Clear(CNT_INPUTSEL_SHIFT);
         // select prescaler on counter ic
         // LF has a fixed prescaler of 4 (except in LF direct).
@@ -288,37 +290,38 @@ void counter_SelectInput(uint8_t in, uint8_t prescaler) {
             break;
         }
         break;
-    case CNT_IN_HF:
-        // select HF input signal
-        shift_Set(CNT_INPUTSEL_SHIFT);
-        // select prescaler on counter ic and HF frontend
-        switch (prescaler) {
-        case CNT_HF_PRE_20:
-            shift_Set(CNT_HFSEL1_SHIFT);
-            shift_Set(CNT_HFSEL2_SHIFT);
-            counter_SelectMux(CNT_MUX_DIVIDER1);
-            counter.prescaler = 20;
-            break;
-        case CNT_HF_PRE_40:
-            shift_Set(CNT_HFSEL1_SHIFT);
-            shift_Set(CNT_HFSEL2_SHIFT);
-            counter_SelectMux(CNT_MUX_DIVIDER2);
-            counter.prescaler = 40;
-            break;
-        case CNT_HF_PRE_80:
-            shift_Set(CNT_HFSEL1_SHIFT);
-            shift_Set(CNT_HFSEL2_SHIFT);
-            counter_SelectMux(CNT_MUX_DIVIDER4);
-            counter.prescaler = 80;
-            break;
-        case CNT_HF_PRE_160:
-            shift_Set(CNT_HFSEL1_SHIFT);
-            shift_Clear(CNT_HFSEL2_SHIFT);
-            counter_SelectMux(CNT_MUX_DIVIDER4);
-            counter.prescaler = 160;
-            break;
-        }
-        break;
+//    case CNT_IN_HF:
+//    	counter.input = CNT_IN_HF;
+//       // select HF input signal
+//        shift_Set(CNT_INPUTSEL_SHIFT);
+//        // select prescaler on counter ic and HF frontend
+//        switch (prescaler) {
+//        case CNT_HF_PRE_20:
+//            shift_Set(CNT_HFSEL1_SHIFT);
+//            shift_Set(CNT_HFSEL2_SHIFT);
+//            counter_SelectMux(CNT_MUX_DIVIDER1);
+//            counter.prescaler = 20;
+//            break;
+//        case CNT_HF_PRE_40:
+//            shift_Set(CNT_HFSEL1_SHIFT);
+//            shift_Set(CNT_HFSEL2_SHIFT);
+//            counter_SelectMux(CNT_MUX_DIVIDER2);
+//            counter.prescaler = 40;
+//            break;
+//        case CNT_HF_PRE_80:
+//            shift_Set(CNT_HFSEL1_SHIFT);
+//            shift_Set(CNT_HFSEL2_SHIFT);
+//            counter_SelectMux(CNT_MUX_DIVIDER4);
+//            counter.prescaler = 80;
+//            break;
+//        case CNT_HF_PRE_160:
+//            shift_Set(CNT_HFSEL1_SHIFT);
+//            shift_Clear(CNT_HFSEL2_SHIFT);
+//            counter_SelectMux(CNT_MUX_DIVIDER4);
+//            counter.prescaler = 160;
+//            break;
+//        }
+//        break;
     default:
         // should never reach this point
         // switch to unused MUX input
