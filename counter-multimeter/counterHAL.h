@@ -86,7 +86,7 @@ struct {
 	uint8_t refInternal :1;
 	volatile uint8_t refGateStatus;
 	volatile uint8_t sigGateStatus;
-	uint16_t sigGateEdges;
+	uint32_t sigGateEdges;
 	uint32_t sigGateOpenCnt;
 	uint32_t sigGateCloseCnt;
 	uint8_t prescaler;
@@ -188,7 +188,7 @@ uint32_t counter_MeasureRefGate(uint32_t ticks);
  * \return 0, if timeout occured. Otherwise the time between the first and last
  *         edge in terms of reference counter ticks
  */
-uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout);
+uint32_t counter_SignalPulsesTime(uint32_t edges, uint16_t timeout);
 
 /**
  * \brief Selects one of the input channels at the multiplier

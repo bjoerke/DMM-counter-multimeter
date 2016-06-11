@@ -184,7 +184,7 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
 #endif
 }
 
-uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
+uint32_t counter_SignalPulsesTime(uint32_t edges, uint16_t timeout) {
 #ifdef CNT_SIMULATION
     // calculate input pin frequency
     uint32_t pinFreq = counter.inputFrequency / counter.prescaler;
@@ -193,9 +193,9 @@ uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
     if (pinFreq > F_CPU / 2) {
         pinFreq = F_CPU - pinFreq;
     }
-    // calculate time between pinchanges (in ns)
-    uint32_t timeDiffEdgens = 500000000UL / pinFreq;
-    uint32_t timeDiffms = timeDiffEdgens / 1000;
+    // calculate time between pinchanges (in ps)
+    uint64_t timeDiffEdgeps = (uint64_t) 500000000000UL / pinFreq;
+    uint32_t timeDiffms = timeDiffEdgeps / 1000000;
     timeDiffms *= edges;
     timeDiffms /= 1000;
     if (timeDiffms >= timeout) {
@@ -205,10 +205,10 @@ uint32_t counter_SignalPulsesTime(uint16_t edges, uint16_t timeout) {
     } else {
         time_Waitms(timeDiffms);
         // calculate reference timer ticks
-        timeDiffEdgens *= edges;
+        timeDiffEdgeps *= edges;
         // reference timer does one step each 500ns
-        timeDiffEdgens /= 500;
-        return timeDiffEdgens;
+        timeDiffEdgeps /= 500000;
+        return timeDiffEdgeps;
     }
 #else
     // setup input capture functionality at ICP3
