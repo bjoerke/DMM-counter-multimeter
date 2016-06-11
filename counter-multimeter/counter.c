@@ -28,6 +28,11 @@ uint32_t cnt_MeasureFrequency(uint8_t precision, uint32_t estimate) {
 		uint32_t edges = estimate / 500 * ms;
 		// sample frequency using double the amount of time as precaution
 		uint32_t timediff = counter_SignalPulsesTime(edges, ms * 2);
+//		UART_PutString("timediff: ");
+//		UART_PutLongInteger(timediff);
+//		UART_PutString(" edges: ");
+//		UART_PutLongInteger(edges);
+//		UART_PutChar('\n');
 		if (timediff == 0) {
 			// timeout occured, estimate was too high
 			// decrease estimate
@@ -73,6 +78,11 @@ uint32_t cnt_GetEstimate(void) {
 			// keep lowering the prescaler until the frequency at
 			// the input pin (e.i. after the prescaler) rises above
 			// 500kHz or the lowest prescaler has been reached
+//			UART_PutString("estimate: ");
+//			UART_PutLongInteger(estimate);
+//			UART_PutString(" prescaler: ");
+//			UART_PutInteger(prescaler);
+//			UART_PutChar('\n');
 		} while ((prescaler != CNT_LOWEST_PRESCALER_LF)
 				&& (estimate < COUNTER_DEF_SAMPLE_TIME * 500));
 		// convert to frequency
@@ -116,6 +126,10 @@ uint32_t cnt_TakeMeasurement(uint8_t range) {
 	uint32_t measurement = 0;
 	uint8_t Prescaler = 0;
 	uint8_t AliasingWarning = 0;
+
+//	UART_PutString("estimateLF:");
+//	UART_PutLongInteger(estimateLF);
+//	UART_PutChar('\n');
 	// calculate prescaler
 	switch (range) {
 	case COUNTER_RANGE_AUTO:
@@ -179,6 +193,9 @@ uint32_t cnt_TakeMeasurement(uint8_t range) {
 		// shouldn't happen -> abort
 		return 0;
 	}
+//	UART_PutString("Prescaler:");
+//	UART_PutInteger(Prescaler);
+//	UART_PutChar('\n');
 	// we have a range -> get measurement
 	if (range == COUNTER_RANGE_AUTO) {
 		measurement = cnt_MeasureFrequency(COUNTER_DEF_PRECISION,
