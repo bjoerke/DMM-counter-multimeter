@@ -7,7 +7,7 @@ uint32_t cnt_MeasureFrequency(uint8_t precision, uint32_t estimate) {
 		resolution *= 10;
 	}
 	resolution *= 1000;
-	if (estimate >= CNT_REF_TIMER_FREQ || estimate == 0) {
+	if (estimate > COUNTER_MAX_CAPTURE_FREQUENCY || estimate == 0) {
 		// use normal measurement mode:
 		// calculate necessary time
 		uint32_t ms;
@@ -16,8 +16,16 @@ uint32_t cnt_MeasureFrequency(uint8_t precision, uint32_t estimate) {
 		} else {
 			ms = COUNTER_DEF_SAMPLE_TIME;
 		}
+		if (ms > COUNTER_MAX_SAMPLE_TIME) {
+			ms = COUNTER_MAX_SAMPLE_TIME;
+		}
 		// take measurement
 		uint32_t pulses = counter_MeasureRefGate(CNT_GATE_MS(ms));
+//		UART_PutString("ms: ");
+//		UART_PutLongInteger(ms);
+//		UART_PutString(" pulses: ");
+//		UART_PutLongInteger(pulses);
+//		UART_PutChar('\n');
 		// convert to frequency
 		return (((uint64_t) pulses) * 1000) / ms;
 	} else {
