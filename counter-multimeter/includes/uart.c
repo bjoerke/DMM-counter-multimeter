@@ -58,19 +58,19 @@ UART_Init (void)
   // Save Status Register and disable Interrupts
   uint8_t sreg = SREG;
   cli();
-  
+
   // Set Baudrate according to datasheet (16MHz -> 9600 Baud -> 103)
   UBRRn = 103;
-  
+
   // Enable RX, TX and RX Complete Interrupt
   UCSRnB = (1 << RXENn)|(1 << TXENn)|(1 << RXCIEn);
-  
+
   // Reset Complete-Flags
   UCSRnA = (1 << RXCn)|(1 << TXCn);
-  
+
   // Reset Status Register
   SREG = sreg;
-  
+
   // Initialize FIFO Buffers
   fifo_init(&uart_infifo, uart_inbuf, UART_BUFSIZE_IN);
   fifo_init(&uart_outfifo, uart_outbuf, UART_BUFSIZE_OUT);
@@ -87,13 +87,16 @@ UART_PutChar (const uint8_t c)
 {
 
 
-  
+
   // Put char into TX Buffer
-  int8_t ret = fifo_put(&uart_outfifo, c);
+  int8_t ret;
+  do {
+	  ret = fifo_put(&uart_outfifo, c);
+  } while(!ret);
 
   // Enable DRE Interrupt
   UCSRnB |= (1 << UDRIEn);
-   
+
   return ret;
 }
 
@@ -134,11 +137,11 @@ UART_GetChar_Wait (void)
 void
 UART_PutString (const char *s)
 {
-  do
+	while (*s)
     {
-      UART_PutChar(*s);
+      UART_PutChar(*s++);
     }
-  while (*(s++));
+
 }
 
 void
@@ -146,9 +149,19 @@ UART_PutInteger (const int i)
 {
   // Buffer for Output
   char buffer[10];
-  
+
   // Convert Integer to ASCII, Base 10
   itoa(i, buffer, 10);
-  
+
   UART_PutString(buffer);
+}
+
+void UART_PutLongInteger (const uint32_t i){
+	  // Buffer for Output
+	  char buffer[13];
+
+	  // Convert Integer to ASCII, Base 10
+	  ltoa(i, buffer, 10);
+
+	  UART_PutString(buffer);
 }
