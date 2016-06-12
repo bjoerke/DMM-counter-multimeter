@@ -8,7 +8,7 @@
  * have the same functionality. Take care not to read from
  * the uart in other program parts.
  */
-#define CNT_SIMULATION
+//#define CNT_SIMULATION
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -25,6 +25,9 @@
 #define CNT_GATE_OPENING        1
 #define CNT_GATE_OPEN           2
 #define CNT_GATE_CLOSING        3
+#define CNT_GATE_DUTY_HIGH1		4
+#define CNT_GATE_DUTY_LOW		5
+#define CNT_GATE_DUTY_HIGH2		6
 
 #define CNT_GATE_MS(a)          (2000UL*a)
 
@@ -88,6 +91,7 @@ struct {
 	volatile uint8_t sigGateStatus;
 	uint32_t sigGateEdges;
 	uint32_t sigGateOpenCnt;
+	uint32_t sigDutyMidCnt;
 	uint32_t sigGateCloseCnt;
 	uint8_t prescaler;
 	uint8_t input;
@@ -189,6 +193,21 @@ uint32_t counter_MeasureRefGate(uint32_t ticks);
  *         edge in terms of reference counter ticks
  */
 uint32_t counter_SignalPulsesTime(uint32_t edges, uint16_t timeout);
+
+/**
+ * \brief Measures and returns the duty cycle of a signal
+ *
+ * This function will not give valid results if a prescaler is used.
+ * E.i. prescaler = 1 must be used.
+ *
+ * IMPORTANT:
+ * No interrupts taking more than the minimum time between two edges are
+ * allowed to be enabled before calling this function!
+ *
+ * \param timeout Maximum wait time in ms
+ * \return 0, if timeout occured. Otherwise the duty cycle in 0.1%
+ */
+uint16_t counter_MeasureDuty(uint16_t timeout);
 
 /**
  * \brief Selects one of the input channels at the multiplier
