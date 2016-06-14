@@ -27,6 +27,7 @@ void uart_rx_listener(char c)
 
 void do_measure(uint8_t page)
 {
+	uint8_t dummy;
 	switch(page)
 	{
 		case 0x00:		// Hauptauswahl
@@ -34,20 +35,25 @@ void do_measure(uint8_t page)
 		case 0x10:		// Voltmeter Hauptauswahl
 			break;
 		case 0x11:		// Voltmeter Auto
+			// Hier muss noch ein Funktionsaufruf zu meter_measure(...) erfolgen, der die Paramter "VOLTAGE" und "AUTO" übergibt
 			break;
 		case 0x12:		// Voltmeter Manuell Auswahl
 			break;
 		case 0x13:		// Voltmeter 500V
-			DMM_SetURange(DMM_RANGE_500V);
+			dummy = meter_measure(0x01, 0x01);			// 0x01 = parameter voltage / 0x01 = rangemode1		*******meter_measure liefert einen int32_t zurueck!*******
+			//DMM_SetURange(DMM_RANGE_500V);
 			break;
 		case 0x14:		// Voltmeter 200V
-			DMM_SetURange(DMM_RANGE_200V);
+			dummy = meter_measure(0x01, 0x02);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
+			//DMM_SetURange(DMM_RANGE_200V);
 			break;
 		case 0x15:		// Voltmeter 20V
-			DMM_SetURange(DMM_RANGE_20V);
+			dummy = meter_measure(0x01, 0x04);			// 0x01 = parameter voltage / 0x04 = rangemode3		*******meter_measure liefert einen int32_t zurueck!*******
+			//DMM_SetURange(DMM_RANGE_20V);
 			break;
 		case 0x16:		// Voltmeter 2V
-			DMM_SetURange(DMM_RANGE_2V);
+			dummy = meter_measure(0x01, 0x08);			// 0x01 = parameter voltage / 0x08 = rangemode4		*******meter_measure liefert einen int32_t zurueck!*******
+			//DMM_SetURange(DMM_RANGE_2V);
 			break;
 		case 0x20:		// Amperemeter Hauptauswahl
 			break;
@@ -140,6 +146,7 @@ int main(void)
 	time_Init();
 	shift_Init();
 	counter_Init();
+	ADC_Init();
 
 	UART_SetDataReceivedListener(uart_rx_listener);
 
@@ -170,6 +177,8 @@ int main(void)
 		function_select();
 		display_LCD(page);
 		do_measure(page);
+		
+		// TODO: Prepare PINA0...2 for input
 	}
 
 	// ###########################

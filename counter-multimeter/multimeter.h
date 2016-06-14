@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "includes/lcd.h"
 #include "systime.h"
 #include "shiftreg.h"
 
@@ -22,6 +23,20 @@
 #define DMM_RANGE_200kOhm	3
 #define DMM_RANGE_20kOhm	2
 #define DMM_RANGE_2kOhm		1
+
+#define DMM_RANGE_CONTIN	1
+
+#define VOLTAGE		0x01		// 0000 0001
+#define CURRENT		0x02		// 0000 0010
+#define RESISTANCE	0x04		// 0000 0100
+#define CONTINUITY	0x08		// 0000 1000
+
+#define A_RANGE		0xFF		// Autorange				// 1111 1111
+#define M_RANGE1	0x01		// Manual Rangemode 1		// 0000 0001
+#define M_RANGE2	0x02		// Manual Rangemode 2		// 0000 0010
+#define M_RANGE3	0x04		// Manual Rangemode 3		// 0000 0100
+#define M_RANGE4	0x08		// Manual Rangemode 4		// 0000 1000
+#define M_RANGE5	0x10		// Manual Rangemode 5		// 0001 0000
 
 /*
  * positions of the DMM pins on the shift registers
@@ -56,5 +71,20 @@ void DMM_SetIRange(uint8_t iRange);
  * \param uRange Selected resistance range
  */
 void DMM_SetRRange(uint8_t rRange);
+
+/**
+ * \brief Switches into continuity measurement mode
+ *
+ * \param not necessary
+ */
+void DMM_SetCRange();
+
+/**
+ * \brief Switches into continuity measurement mode
+ *
+ * \param variable selects measurement variable
+ * \param range selects the range mode
+ */
+int32_t meter_measure(uint8_t variable, uint8_t range);
 
 #endif
