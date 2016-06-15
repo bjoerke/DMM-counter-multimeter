@@ -35,7 +35,7 @@ void do_measure(uint8_t page)
 		case 0x10:		// Voltmeter Hauptauswahl
 			break;
 		case 0x11:		// Voltmeter Auto
-			// Hier muss noch ein Funktionsaufruf zu meter_measure(...) erfolgen, der die Paramter "VOLTAGE" und "AUTO" übergibt
+			// Hier muss noch ein Funktionsaufruf zu meter_measure(...) erfolgen, der die Paramter "VOLTAGE" und "AUTO" ï¿½bergibt
 			break;
 		case 0x12:		// Voltmeter Manuell Auswahl
 			break;
@@ -62,19 +62,19 @@ void do_measure(uint8_t page)
 		case 0x22:		// Amperemeter-Manuell Auswahl
 			break;
 		case 0x23:		// Amperemeter 10A
-			DMM_SetIRange(DMM_RANGE_10A);
+			dummy = meter_measure(CURRENT, 0x01);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x24:		// Amperemeter 200mA
-			DMM_SetIRange(DMM_RANGE_200mA);
+			dummy = meter_measure(CURRENT, 0x02);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x25:		// Amperemeter 20mA
-			DMM_SetIRange(DMM_RANGE_20mA);
+			dummy = meter_measure(CURRENT, 0x04);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x26:		// Amperemeter 2mA
-			DMM_SetIRange(DMM_RANGE_2mA);
+			dummy = meter_measure(CURRENT, 0x08);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x27:		// Amperemeter 20uA
-			DMM_SetIRange(DMM_RANGE_200uA);
+			dummy = meter_measure(CURRENT, 0x10);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x40:		// Widerstand (Auto oder Manuell Auswahl)
 			break;
@@ -83,19 +83,19 @@ void do_measure(uint8_t page)
 		case 0x42:		// Widerstand-Manuell Auswahl
 			break;
 		case 0x43:		// Widerstand 20M
-			DMM_SetRRange(DMM_RANGE_20MOhm);
+			dummy = meter_measure(RESISTANCE, 0x01);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x44:		// Widerstand 2M
-			DMM_SetRRange(DMM_RANGE_2MOhm);
+			dummy = meter_measure(RESISTANCE, 0x02);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x45:		// Widerstand 200k
-			DMM_SetRRange(DMM_RANGE_200kOhm);
+			dummy = meter_measure(RESISTANCE, 0x04);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x46:		// Widerstand 20k
-			DMM_SetRRange(DMM_RANGE_20kOhm);
+			dummy = meter_measure(RESISTANCE, 0x08);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x47:		// Widerstand 2k
-			DMM_SetRRange(DMM_RANGE_2kOhm);
+			dummy = meter_measure(RESISTANCE, 0x10);			// 0x01 = parameter voltage / 0x02 = rangemode2		*******meter_measure liefert einen int32_t zurueck!*******
 			break;
 		case 0x80:		// Durchgangspruefung
 			break;
@@ -269,7 +269,7 @@ int main(void)
 	//}
 
 // ##################################
-// ## Hier beginnt der Zähler-Teil ##
+// ## Hier beginnt der Zï¿½hler-Teil ##
 // ##################################
 
     //Backlight_LED(BL_BLUE_ON);

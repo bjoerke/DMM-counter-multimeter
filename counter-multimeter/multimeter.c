@@ -152,18 +152,6 @@ int32_t meter_measure(uint8_t variable, uint8_t range) {
 			break;
 		case M_RANGE3:
 			DMM_SetURange(DMM_RANGE_20V);
-			while (PINA & (1 << PINA5)) {
-				// Wrote some stuff for testing purpose...
-				LCD_WipeLine(2);
-				LCD_GotoXY(0, 2);
-				LCD_PutString("Test U: ");
-				uint16_t adc = ADC_get(0);
-				char buffer[10];
-				itoa(adc, buffer, 10);
-				LCD_PutString(buffer);
-				LCD_Update();
-				time_Waitms(100);
-			}
 			break;
 		case M_RANGE4:
 			DMM_SetURange(DMM_RANGE_2V);
@@ -176,10 +164,19 @@ int32_t meter_measure(uint8_t variable, uint8_t range) {
 		switch (range) {
 		case A_RANGE:
 		case M_RANGE1:
+			DMM_SetIRange(DMM_RANGE_10A);
+			break;
 		case M_RANGE2:
+			DMM_SetIRange(DMM_RANGE_200mA);
+			break;
 		case M_RANGE3:
+			DMM_SetIRange(DMM_RANGE_20mA);
+			break;
 		case M_RANGE4:
+			DMM_SetIRange(DMM_RANGE_2mA);
+			break;
 		case M_RANGE5:
+			DMM_SetIRange(DMM_RANGE_200uA);
 			break;
 		}
 		break;
@@ -187,10 +184,19 @@ int32_t meter_measure(uint8_t variable, uint8_t range) {
 		switch (range) {
 		case A_RANGE:
 		case M_RANGE1:
+			DMM_SetRRange(DMM_RANGE_20MOhm);
+			break;
 		case M_RANGE2:
+			DMM_SetRRange(DMM_RANGE_2MOhm);
+			break;
 		case M_RANGE3:
+			DMM_SetRRange(DMM_RANGE_200kOhm);
+			break;
 		case M_RANGE4:
+			DMM_SetRRange(DMM_RANGE_20kOhm);
+			break;
 		case M_RANGE5:
+			DMM_SetRRange(DMM_RANGE_2kOhm);
 			break;
 		}
 		break;
@@ -206,6 +212,17 @@ int32_t meter_measure(uint8_t variable, uint8_t range) {
 		}
 		break;
 	}
-
+	while (PINA & (1 << PINA5)) {
+		// Wrote some stuff for testing purpose...
+		LCD_WipeLine(2);
+		LCD_GotoXY(0, 2);
+		LCD_PutString("Test U: ");
+		uint16_t adc = ADC_get(0);
+		char buffer[10];
+		itoa(adc, buffer, 10);
+		LCD_PutString(buffer);
+		LCD_Update();
+		time_Waitms(100);
+	}
 	return 1;
 }
