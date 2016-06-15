@@ -362,3 +362,9 @@ LCD_LoadPage (unsigned int page)
   lcd_frameupdate = 0xff;
   LCD_Update();
 }
+
+void LCD_PutInteger(int32_t i){
+	char buffer[12];
+	ltoa(i, buffer, 10);
+	LCD_PutString(buffer);
+}

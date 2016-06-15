@@ -61,6 +61,7 @@ void LCD_GotoXY (uint8_t x, uint8_t y);
 void LCD_WipeLine (unsigned char line);
 void LCD_SavePage (unsigned int page);
 void LCD_LoadPage (unsigned int page);
+void LCD_PutInteger(int32_t i);
 
 void Backlight_Off (void);
 void Backlight_LED (uint8_t led_selector);
