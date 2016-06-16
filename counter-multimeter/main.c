@@ -35,7 +35,7 @@ void do_measure(uint8_t page)
 		case 0x10:		// Voltmeter Hauptauswahl
 			break;
 		case 0x11:		// Voltmeter Auto
-			// Hier muss noch ein Funktionsaufruf zu meter_measure(...) erfolgen, der die Paramter "VOLTAGE" und "AUTO" übergibt
+			// Hier muss noch ein Funktionsaufruf zu meter_measure(...) erfolgen, der die Paramter "VOLTAGE" und "AUTO" ï¿½bergibt
 			break;
 		case 0x12:		// Voltmeter Manuell Auswahl
 			break;
@@ -100,7 +100,7 @@ void do_measure(uint8_t page)
 		case 0x80:		// Durchgangspruefung
 			break;
 		case 0x90:		// Frequenzmessung
-			while (wait_back_button()) 
+			while (wait_back_button())
 			{
 				// count impulses on PB0 for one second
 				PORTB |= (1 << PB2);
@@ -126,7 +126,7 @@ void do_measure(uint8_t page)
 	}
 }
 
-int main(void) 
+int main(void)
 {
 	// set PA3-PA7 as input and activated internal Pull-Up
 	// PA3-PA7 are the joystick-connected pins.
@@ -139,11 +139,12 @@ int main(void)
 	DDRB = 0x0F;
 	// set PB0-PB3 on high-level (internal Pull-Up on)
 	PORTB |= 0x0F;		// Required for DMM Board DMM Board 2013
-	
+
 	LCD_Init();
 	UART_Init();
 
 	time_Init();
+	joy_Init();
 	shift_Init();
 	counter_Init();
 	ADC_Init();
@@ -165,10 +166,10 @@ int main(void)
 	LCD_PutString_P(PSTR("                     \r\n"));
 	LCD_Update();
 	time_Waitms(3000);
-	
+
 	// Enable interrupts:
 	sei();
-	
+
 	LCD_Clear();
 	display_LCD(0);
 
@@ -177,7 +178,7 @@ int main(void)
 		function_select();
 		display_LCD(page);
 		do_measure(page);
-		
+
 		// TODO: Prepare PINA0...2 for input
 	}
 
@@ -191,9 +192,9 @@ int main(void)
 	//{
 		//LCD_WipeLine(2);
 		//LCD_GotoXY(0, 2);
-		//if (range < 5) 
+		//if (range < 5)
 		//{
-			//switch (range) 
+			//switch (range)
 			//{
 				//case DMM_RANGE_500V:
 				//case DMM_RANGE_200V:
@@ -205,9 +206,9 @@ int main(void)
 			//LCD_PutString("Voltage ");
 			//LCD_PutChar(range + '0');
 		//}
-		//else if (range < 10) 
+		//else if (range < 10)
 		//{
-			//switch (range - 4) 
+			//switch (range - 4)
 			//{
 				//case DMM_RANGE_10A:
 				//case DMM_RANGE_200mA:
@@ -219,10 +220,10 @@ int main(void)
 			//}
 			//LCD_PutString("Current ");
 			//LCD_PutChar(range - 4 + '0');
-		//} 
+		//}
 		//else if (range < 15)
 		//{
-			//switch (range - 9) 
+			//switch (range - 9)
 			//{
 				//case DMM_RANGE_20MOhm:
 				//case DMM_RANGE_2MOhm:
@@ -248,15 +249,15 @@ int main(void)
 		//}
 		//LCD_Update();
 		//uint8_t oldrange = range;
-		//do 
+		//do
 		//{
-			//if (!(PINA & (1 << PA6))) 
+			//if (!(PINA & (1 << PA6)))
 			//{
 				//// DOWN button pressed
 				//if (range < 15)
 					//range++;
 			//}
-			//if (!(PINA & (1 << PA7))) 
+			//if (!(PINA & (1 << PA7)))
 			//{
 				//// UP button pressed
 				//if (range > 1)
@@ -269,7 +270,7 @@ int main(void)
 	//}
 
 // ##################################
-// ## Hier beginnt der Zähler-Teil ##
+// ## Hier beginnt der Zï¿½hler-Teil ##
 // ##################################
 
     //Backlight_LED(BL_BLUE_ON);
