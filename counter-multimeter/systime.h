@@ -3,9 +3,11 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <stddef.h>
 
 struct {
 	volatile uint32_t ms;
+	void (*callback)(void);
 } time;
 
 /**
@@ -14,6 +16,13 @@ struct {
  * Configures timer 3 in CTC mode to overflow each millisecond
  */
 void time_Init(void);
+
+/**
+ * \brief Sets a callback function that will be called every 10ms
+ *
+ * \param callback function pointer to void function
+ */
+void time_RegisterCallback(void (*callback)(void));
 
 /**
  * \brief Reads the current system time since boot-up in milliseconds
