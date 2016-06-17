@@ -171,16 +171,8 @@ int main(void)
 	sei();
 
 	LCD_Clear();
-	display_LCD(0);
 
-	while(1)
-	{
-		function_select();
-		display_LCD(page);
-		do_measure(page);
-
-		// TODO: Prepare PINA0...2 for input
-	}
+	gui_MainMenu();
 
 	// ###########################
 	// ## Begin of the old code ##
