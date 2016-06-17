@@ -47,6 +47,7 @@ const char PROGMEM rangeNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_RANGES_PER_ENTRY][GU
 void gui_MainMenu(void) {
 	while (1) {
 		gui_DisplayMainMenu();
+		time_Waitms(100);
 		if(gui.selectedEntry<GUI_NUM_MEASUREMENT_ENTRIES){
 			gui_TakeMeasurement();
 		}
