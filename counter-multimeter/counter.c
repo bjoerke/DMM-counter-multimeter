@@ -33,10 +33,12 @@ uint32_t cnt_MeasureFrequency(uint8_t precision, uint32_t estimate) {
 		// calculate necessary time to achieve desired precision
 		uint32_t ms = resolution / CNT_REF_TIMER_FREQ;
 		// estimate edges within that time
-		uint32_t edges = estimate / 500 * ms;
+		uint32_t edges = (uint64_t) estimate * ms / 500;
 		// sample frequency using double the amount of time as precaution
 		uint32_t timediff = counter_SignalPulsesTime(edges, ms * 2);
-//		UART_PutString("timediff: ");
+//		UART_PutString("ms: ");
+//		UART_PutLongInteger(ms);
+//		UART_PutString(" timediff: ");
 //		UART_PutLongInteger(timediff);
 //		UART_PutString(" edges: ");
 //		UART_PutLongInteger(edges);
@@ -85,14 +87,14 @@ uint32_t cnt_GetEstimate(void) {
 					CNT_GATE_MS(COUNTER_DEF_SAMPLE_TIME));
 			// keep lowering the prescaler until the frequency at
 			// the input pin (e.i. after the prescaler) rises above
-			// 500kHz or the lowest prescaler has been reached
+			// 200kHz or the lowest prescaler has been reached
 //			UART_PutString("estimate: ");
 //			UART_PutLongInteger(estimate);
 //			UART_PutString(" prescaler: ");
 //			UART_PutInteger(prescaler);
 //			UART_PutChar('\n');
 		} while ((prescaler != CNT_LOWEST_PRESCALER_LF)
-				&& (estimate < COUNTER_DEF_SAMPLE_TIME * 500));
+				&& (estimate < COUNTER_DEF_SAMPLE_TIME * 200));
 		// convert to frequency
 		estimate *= 1000;
 		estimate /= COUNTER_DEF_SAMPLE_TIME;
@@ -128,8 +130,14 @@ uint32_t cnt_TakeMeasurement(uint8_t range) {
 	// check TTL input first
 	counter_SelectInput(CNT_IN_TTL, CNT_TTL_PRE_1);
 	uint32_t estimateTTL = cnt_GetEstimate();
+//	UART_PutString("TTL estimate:");
+//	UART_PutLongInteger(estimateTTL);
+//	UART_PutChar('\n');
 	counter_SelectInput(CNT_IN_LF, CNT_HIGHEST_PRESCALER_LF);
 	uint32_t estimateLF = cnt_GetEstimate();
+//	UART_PutString("LF estimate:");
+//	UART_PutLongInteger(estimateLF);
+//	UART_PutChar('\n');
 	uint32_t estimate = 0;
 	uint32_t measurement = 0;
 	uint8_t Prescaler = 0;
@@ -203,6 +211,8 @@ uint32_t cnt_TakeMeasurement(uint8_t range) {
 	}
 //	UART_PutString("Prescaler:");
 //	UART_PutInteger(Prescaler);
+//	UART_PutString(", estimate:");
+//	UART_PutLongInteger(estimate);
 //	UART_PutChar('\n');
 	// we have a range -> get measurement
 	if (range == COUNTER_RANGE_AUTO) {

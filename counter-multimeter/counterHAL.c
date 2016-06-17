@@ -224,7 +224,8 @@ uint32_t counter_SignalPulsesTime(uint32_t edges, uint16_t timeout) {
 	counter.sigGateEdges = edges;
 	counter.sigGateStatus = CNT_GATE_OPENING;
 	// enable impulse detection interrupt
-	TIFR1 |= (1 << ICF1);
+	if (TIFR1 & (1 << ICF1))
+		TIFR1 |= (1 << ICF1);
 	TIMSK1 |= (1 << ICIE1);
 	uint32_t starttime = time_Getms();
 	// wait for gate to close (this is happening in Timer3 input capture interrupt)
@@ -454,30 +455,30 @@ void counter_SimUARTInput(uint8_t c) {
 	case CNT_GATE_OPENING:
 		counter.sigGateStatus = CNT_GATE_OPEN;
 		// save timestamp of the first impulse
-		counter.sigGateOpenCnt = counter.refOverflows * 2000 + captureTime;
+		counter.sigGateOpenCnt = (uint32_t) counter.refOverflows * 2000 + captureTime;
 		break;
 	case CNT_GATE_OPEN:
 		counter.sigGateEdges--;
 		if (counter.sigGateEdges == 0) {
 			// reached correct number of edges
 			counter.sigGateStatus = CNT_GATE_CLOSED;
-			counter.sigGateCloseCnt = counter.refOverflows * 2000 + captureTime;
+			counter.sigGateCloseCnt = (uint32_t) counter.refOverflows * 2000 + captureTime;
 		}
 		break;
 	case CNT_GATE_DUTY_HIGH1:
 		counter.sigGateStatus = CNT_GATE_DUTY_LOW;
 		// save timestamp of the first rising edge
-		counter.sigGateOpenCnt = counter.refOverflows * 2000 + captureTime;
+		counter.sigGateOpenCnt = (uint32_t) counter.refOverflows * 2000 + captureTime;
 		break;
 	case CNT_GATE_DUTY_LOW:
 		counter.sigGateStatus = CNT_GATE_DUTY_HIGH2;
 		// save timestamp of the falling edge
-		counter.sigDutyMidCnt = counter.refOverflows * 2000 + captureTime;
+		counter.sigDutyMidCnt = (uint32_t) counter.refOverflows * 2000 + captureTime;
 		break;
 	case CNT_GATE_DUTY_HIGH2:
 		counter.sigGateStatus = CNT_GATE_CLOSED;
 		// save timestamp of the second rising edge
-		counter.sigGateCloseCnt = counter.refOverflows * 2000 + captureTime;
+		counter.sigGateCloseCnt = (uint32_t) counter.refOverflows * 2000 + captureTime;
 		break;
 	default:
 		// This interrupt shouldn't be active if the gate isn't open/about to open!
