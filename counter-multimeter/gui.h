@@ -19,25 +19,51 @@
 #define GUI_MEASURE_FREQUENCY			6
 #define GUI_MEASURE_DUTY				7
 
+#define GUI_ENTER_MENU					9
+
+/* maximum length of one menu entry. Shorter entries should be centered */
 #define GUI_MAX_MENU_NAME_LENGTH		5
+/* Number of used menu entries */
 #define GUI_NUM_MENU_ENTRIES			10
+/* Number of measurement menu entries (the first X entries) */
 #define GUI_NUM_MEASUREMENT_ENTRIES		8
 
+/* Maximum available ranges/selections per menu entry */
 #define GUI_MAX_RANGES_PER_ENTRY		7
+/* maximum length of range/selection name. Shorter names should be centered */
 #define GUI_MAX_RANGE_NAME_LENGTH		11
 
+#define GUI_NUM_SETTINGS_ENTRIES		4
+
 struct {
+	/* currently selected entry */
 	uint8_t selectedEntry;
+	/* selected range for all menu entries */
 	uint8_t selectedRanges[GUI_NUM_MENU_ENTRIES];
+	/* currently taking measurements? */
 	uint8_t measurementActive;
+	/* result of the current measurement. Only valid if measurementActive = 1 */
 	int32_t measurementResult;
 } gui;
 
-void gui_MainMenu(void);
+/**
+ * \brief Displays the main menu
+ *
+ * The main menu content is transferred to the LCD
+ */
 void gui_DisplayMainMenu(void);
+
+/**
+ * \brief Handles user input while in main menu
+ */
 void gui_HandleUserInput(void);
 
+/**
+ * \brief Samples a new measurement
+ */
 void gui_TakeMeasurement(void);
+
+void gui_SettingsMenu(void);
 
 /**
  * \brief Creates a string from an unsigned integer

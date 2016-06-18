@@ -8,12 +8,15 @@ const char PROGMEM menuNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_MENU_NAME_LENGTH + 1]
 const uint8_t menuEntryRanges[GUI_NUM_MENU_ENTRIES] = { 5, 5, 6, 6, 6, 1, 7, 2,
 		1, 1 };
 
+// number of displayed digits for the different measurements
 const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 4, 4, 4, 4, 4,
 		4, 9, 3 };
 
+// dot-position of the different measurements (0 = no dot)
 const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 0, 0, 0, 0, 0, 0,
 		0, 1 };
 
+// unit names of the different measurements
 const char PROGMEM unitNames[GUI_NUM_MEASUREMENT_ENTRIES][6] = { "V(DC)",
 		"V(AC)", "A(DC)", "A(AC)", "Ohm", "Ohm", "Hz", "%" };
 
@@ -43,17 +46,6 @@ const char PROGMEM rangeNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_RANGES_PER_ENTRY][GU
 { "UARTControl" },
 /* Menu 'range' names */
 { "Enter Menu " } };
-
-void gui_MainMenu(void) {
-	while (1) {
-		gui_DisplayMainMenu();
-		time_Waitms(100);
-		if(gui.selectedEntry<GUI_NUM_MEASUREMENT_ENTRIES){
-			gui_TakeMeasurement();
-		}
-		gui_HandleUserInput();
-	}
-}
 
 void gui_DisplayMainMenu(void) {
 	// Display menu content
@@ -176,6 +168,9 @@ void gui_HandleUserInput(void) {
 			// selected entry is a measurement entry
 			gui.measurementActive = 1;
 		}
+		if (gui.selectedEntry == GUI_ENTER_MENU) {
+			gui_SettingsMenu();
+		}
 	}
 }
 
@@ -189,19 +184,78 @@ void gui_TakeMeasurement(void) {
 						COUNTER_RANGE_AUTO);
 		break;
 	case GUI_MEASURE_DUTY:
-		if(gui.selectedRanges[GUI_MEASURE_DUTY]==0){
+		if (gui.selectedRanges[GUI_MEASURE_DUTY] == 0) {
 			// measure duty cycle of TTL input
 			counter_SelectInput(CNT_IN_TTL, CNT_TTL_PRE_1);
 		} else {
-			// measure dury cycle of BNC input
+			// measure duty cycle of BNC input
 			counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
 		}
-		gui.measurementResult = counter_MeasureDuty(500);
+		gui.measurementResult = counter_MeasureDuty(2000);
 		break;
 	default:
 		gui.measurementResult = 0;
 		break;
 	}
+}
+
+void gui_SettingsMenu(void) {
+	uint8_t selectedEntry = 0;
+	do {
+		// display settings menu
+		LCD_Clear();
+		LCD_GotoXY(1, 0);
+		LCD_PutString_PLarge(PSTR(" Settings"));
+		LCD_GotoXY(1, 2);
+		LCD_PutString_P(PSTR("Cnt-Ref:"));
+		if (counter.refInternal) {
+			LCD_PutString_P(PSTR("Internal"));
+		} else if (counter.refExternal) {
+			LCD_PutString_P(PSTR("External"));
+		}
+		LCD_GotoXY(0, 2 + selectedEntry);
+		// display arrow
+		LCD_PutChar(0x10);
+		LCD_Update();
+		time_Waitms(100);
+		if (joy_Pressed(JOY_UP)) {
+			// move arrow up (with wrap-around)
+			selectedEntry =
+					selectedEntry > 0 ?
+							selectedEntry - 1 : GUI_NUM_SETTINGS_ENTRIES - 1;
+		}
+		if (joy_Pressed(JOY_DOWN)) {
+			// move arrow down (with wrap-around)
+			selectedEntry = (selectedEntry + 1) % GUI_NUM_SETTINGS_ENTRIES;
+		}
+		if (joy_Pressed(JOY_RIGHT | JOY_PUSH)) {
+			// execute menu entry
+			switch (selectedEntry) {
+			case 0:
+				// toggle counter reference
+				if (!counter.refInternal) {
+					counter_RefInternal();
+				} else {
+					if (counter_RefExternal()) {
+						LCD_Clear();
+						LCD_GotoXY(5, 0);
+						LCD_PutString_PLarge(PSTR("Error"));
+						LCD_GotoXY(0, 2);
+						LCD_PutString_P(PSTR("Couldn't switch to\r\n"
+								"external reference:\r\n"
+								"Verify that 10MHz are\r\n"
+								"applied at Ref BNC"));
+						LCD_Update();
+						while (!joy_Pressed(
+								JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
+										| JOY_PUSH))
+							;
+					}
+				}
+				break;
+			}
+		}
+	} while (!joy_Pressed(JOY_LEFT));
 }
 
 void gui_string_fromInt(int32_t value, char *dest, uint8_t digits, uint8_t dot) {
