@@ -1,6 +1,5 @@
-#ifndef F_CPU
-#define F_CPU 16000000UL
-#endif
+#ifndef _JOY_H_
+#define _JOY_H_
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -68,3 +67,5 @@ uint8_t joy_State(uint8_t joymask);
  *  see: https://www.mikrocontroller.net/articles/Entprellung
  */
 void joy_Update(void);
+
+#endif

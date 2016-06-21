@@ -1,600 +1,280 @@
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <util/delay.h>
-#include <avr/pgmspace.h>
-#include <avr/wdt.h>
-
 #include "gui.h"
-#include "joy.h"
-#include "systime.h"
 
-static char arrow = 1;
-extern uint8_t page;
-extern uint8_t newpage;
+const char PROGMEM menuNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_MENU_NAME_LENGTH + 1] =
+		{ "VolDC", "VolAC", "AmpDC", "AmpAC", " Ohm ", "Beep ", " Hz  ",
+				"Duty ", " CMD ", "Menu " };
 
-void function_select() {
-	while (!wait_joy_button() && !wait_back_button()) {
-		scan_arrow();
-		time_Waitms(100);
-		display_arrow(arrow);
-		time_Waitms(100);
-	}
-	//page=arrow-1;
-	page = newpage;
-	time_Waitms(200);
-}
+// number of available ranges per menu entry
+const uint8_t menuEntryRanges[GUI_NUM_MENU_ENTRIES] = { 5, 5, 6, 6, 6, 1, 7, 2,
+		1, 1 };
 
-void display_arrow(char row) {
-	switch (page) {
-	case 0x00:
-	case 0x10:
-	case 0x12:
-	case 0x20:
-	case 0x22:
-	case 0x40:
-	case 0x42:
-		for (int i = 0; i < 8; i++) //clear arrow
-				{
-			LCD_GotoXY(0, i);
-			LCD_PutChar(0x20);
-			LCD_Update();
-		}
-		if (page != 0x00) {
-			LCD_GotoXY(0, 7);
-			LCD_PutChar(0x3C);
-			LCD_Update();
-		}
-		if (arrow > 1) {
-			LCD_GotoXY(0, row);
-			LCD_PutChar(0x10);
-			if (page != 0x00) {
-				LCD_GotoXY(0, 7);
-				LCD_PutChar(0x3C);
-			}
-			LCD_Update();
-		}
-		break;
-	}
-}
+// number of displayed digits for the different measurements
+const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 4, 4, 4, 4, 4,
+		4, 9, 3 };
 
-void scan_arrow() {
-	uint8_t dummy = 0;
+// dot-position of the different measurements (0 = no dot)
+const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 0, 0, 0, 0, 0, 0,
+		0, 1 };
 
-	if (joy_State(JOY_UP)) {
-		dummy = 0x80;
-	}
+// unit names of the different measurements
+const char PROGMEM unitNames[GUI_NUM_MEASUREMENT_ENTRIES][6] = { "V(DC)",
+		"V(AC)", "A(DC)", "A(AC)", "Ohm", "Ohm", "Hz", "%" };
 
-	if (joy_State(JOY_DOWN)) {
-		dummy = 0x40;
-	}
+const char PROGMEM rangeNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_RANGES_PER_ENTRY][GUI_MAX_RANGE_NAME_LENGTH
+		+ 1] = {
+/* Range names for voltage DC */
+{ " Autorange ", "  max: 2V  ", "  max:20V  ", " max: 200V ", " max: 500V " },
+/* Range names for voltage AC */
+{ " Autorange ", "  max: 2V  ", "  max:20V  ", " max: 200V ", " max: 500V " },
+/* Range names for current DC */
+{ " Autorange ", " max:200uA ", "  max:2mA  ", " max: 20mA ", " max:200mA ",
+		"  max:10A  " },
+/* Range names for current AC */
+{ " Autorange ", " max:200uA ", "  max:2mA  ", " max: 20mA ", " max:200mA ",
+		"  max:10A  " },
+/* Range names for resistance */
+{ " Autorange ", " max:2kOhm ", " max:20kOhm", "max:200kOhm", " max:2MOhm ",
+		"max: 20MOhm" },
+/* Range names for continuity */
+{ "Continuity " },
+/* Range names for frequency */
+{ " Autorange ", "TTL (1MHz) ", " BNC 4MHz  ", " BNC 16MHz ", " BNC 32MHz ",
+		" BNC 64MHz ", "BNC 128MHz " },
+/* Range names for duty cycle */
+{ "    TTL    ", "    BNC    " },
+/* CMD 'range' names */
+{ "UARTControl" },
+/* Menu 'range' names */
+{ "Enter Menu " } };
 
-	switch (page) {
-	case 0x00:		// Hauptauswahl
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 6) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x10;
-			break;
-		case 3:
-			newpage = 0x20;
-			break;
-		case 4:
-			newpage = 0x40;
-			break;
-		case 5:
-			newpage = 0x80;
-			break;
-		case 6:
-			newpage = 0x90;
-			break;
-		}
-		break;
-	case 0x10:		// Voltmeter Hauptauswahl
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 3) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x11;
-			break;
-		case 3:
-			newpage = 0x12;
-			break;
-		}
-		break;
-	case 0x11:		// Voltmeter Auto
-		break;
-	case 0x12:		// Voltmeter Manuell Auswahl
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 5) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x13;
-			break;
-		case 3:
-			newpage = 0x14;
-			break;
-		case 4:
-			newpage = 0x15;
-			break;
-		case 5:
-			newpage = 0x16;
-			break;
-		}
-		break;
-	case 0x13:		// Voltmeter 500V
-		break;
-	case 0x14:		// Voltmeter 200V
-		break;
-	case 0x15:		// Voltmeter 20V
-		break;
-	case 0x16:		// Voltmeter 2V
-		break;
-	case 0x20:		// Amperemeter Hauptauswahl
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 3) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x21;
-			break;
-		case 3:
-			newpage = 0x22;
-			break;
-		}
-		break;
-	case 0x21:		// Amperemeter Auto
-		break;
-	case 0x22:		// Amperemeter-Manuell Auswahl
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 6) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x23;
-			break;
-		case 3:
-			newpage = 0x24;
-			break;
-		case 4:
-			newpage = 0x25;
-			break;
-		case 5:
-			newpage = 0x26;
-			break;
-		case 6:
-			newpage = 0x27;
-			break;
-		}
-		break;
-	case 0x23:		// Amperemeter 10A
-		break;
-	case 0x24:		// Amperemeter 200mA
-		break;
-	case 0x25:		// Amperemeter 20mA
-		break;
-	case 0x26:		// Amperemeter 2mA
-		break;
-	case 0x27:		// Amperemeter 20uA
-		break;
-	case 0x40:		// Widerstand (Auto oder Manuell Auswahl)
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 3) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x41;
-			break;
-		case 3:
-			newpage = 0x42;
-			break;
-		}
-		break;
-	case 0x41:		// Widerstand-Auto
-		break;
-	case 0x42:		// Widerstand-Manuell Auswahl
-		if ((arrow > 2) && (dummy == 0x80)) {
-			arrow--;
-		} else if ((arrow < 6) && (dummy == 0x40)) {
-			arrow++;
-		}
-		switch (arrow) {
-		case 2:
-			newpage = 0x43;
-			break;
-		case 3:
-			newpage = 0x44;
-			break;
-		case 4:
-			newpage = 0x45;
-			break;
-		case 5:
-			newpage = 0x46;
-			break;
-		case 6:
-			newpage = 0x47;
-			break;
-		}
-		break;
-	case 0x43:		// Widerstand 20M
-		break;
-	case 0x44:		// Widerstand 2M
-		break;
-	case 0x45:		// Widerstand 200k
-		break;
-	case 0x46:		// Widerstand 20k
-		break;
-	case 0x47:		// Widerstand 2k
-		break;
-	case 0x80:		// Durchgangspruefung
-		break;
-	case 0x90:		// Frequenzmessung
-		break;
-	}
-
-}
-
-void display_LCD(uint8_t p) {
-	LCD_GotoXY(0, 0);
-	switch (p & 0xFF) {
-	case 0x00: {
-		LCD_PutString_P(PSTR("  HANDMULTIMETER     \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("  Voltmeter          \r\n"));
-		LCD_PutString_P(PSTR("  Amperemeter        \r\n"));
-		LCD_PutString_P(PSTR("  Widerstand         \r\n"));
-		LCD_PutString_P(PSTR("  Durchgangspruefung \r\n"));
-		LCD_PutString_P(PSTR("  Frequenzmessung    \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x10:													// 0001 0000
-	{
-		LCD_PutString_P(PSTR("     Voltmeter       \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("  Messmodus Auto     \r\n"));		// 0001 0001
-		LCD_PutString_P(PSTR("  Messmodus Manuell  \r\n"));		// 0001 0010
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x11:													// 0001 0001
-	{
-		LCD_PutString_P(PSTR("    Voltmeter-Auto   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		//LCD_PutString_P(PSTR("<       Oszillograph>\r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x12:													// 0001 0010
-	{
-		LCD_PutString_P(PSTR("  Voltmeter-Manuell  \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("   Messber. 500V     \r\n"));		// 0001 0011
-		LCD_PutString_P(PSTR("   Messber. 200V	   \r\n"));		// 0001 0100
-		LCD_PutString_P(PSTR("   Messber. 20V      \r\n"));		// 0001 0101
-		LCD_PutString_P(PSTR("   Messber. 2V       \r\n"));		// 0001 0110
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x13:													// 0001 0011
-	{
-		LCD_PutString_P(PSTR("   Voltmeter 500V	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("               	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x14:													// 0001 0100
-	{
-		LCD_PutString_P(PSTR("   Voltmeter 200V	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("               	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x15:													// 0001 0101
-	{
-		LCD_PutString_P(PSTR("    Voltmeter 20V	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("               	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x16:													// 0001 0110
-	{
-		LCD_PutString_P(PSTR("     Voltmeter 2V	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("               	   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x20:													// 0010 0000
-	{
-		LCD_PutString_P(PSTR("     Amperemeter     \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("  Messmodus Auto     \r\n"));		// 0010 0001
-		LCD_PutString_P(PSTR("  Messmodus Manuell  \r\n"));		// 0010 0010
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x21:													// 0010 0001
-	{
-		LCD_PutString_P(PSTR("   Amperemeter-Auto  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x22:													// 0010 0010
-	{
-		LCD_PutString_P(PSTR(" Amperemeter-Manuell \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("   Messber. 10A      \r\n"));		// 0010 0011
-		LCD_PutString_P(PSTR("   Messber. 200mA    \r\n"));		// 0010 0100
-		LCD_PutString_P(PSTR("   Messber. 20mA     \r\n"));		// 0010 0101
-		LCD_PutString_P(PSTR("   Messber. 2mA      \r\n"));		// 0010 0110
-		LCD_PutString_P(PSTR("   Messber. 200uA    \r\n"));		// 0010 0111
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x23:													// 0010 0011
-	{
-		LCD_PutString_P(PSTR("   Amperemeter 10A   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x24:													// 0010 0100
-	{
-		LCD_PutString_P(PSTR("  Amperemeter 200mA  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x25:													// 0010 0101
-	{
-		LCD_PutString_P(PSTR("   Amperemeter 20mA  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x26:													// 0010 0110
-	{
-		LCD_PutString_P(PSTR("   Amperemeter 2mA   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x27:													// 0010 0111
-	{
-		LCD_PutString_P(PSTR("  Amperemeter 200uA  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x40:													// 0100 0000
-	{
-		LCD_PutString_P(PSTR("     Widerstand      \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("  Messmodus Auto     \r\n"));		// 0100 0001
-		LCD_PutString_P(PSTR("  Messmodus Manuell  \r\n"));		// 0100 0010
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x41:													// 0100 0001
-	{
-		LCD_PutString_P(PSTR("   Widerstand-Auto   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x42:													// 0100 0010
-	{
-		LCD_PutString_P(PSTR("  Widerstand-Manuell \r\n"));
-		LCD_PutString_P(PSTR(" ------------------- \r\n"));
-		LCD_PutString_P(PSTR("   Messb. 20MOhm     \r\n"));		// 0100 0011
-		LCD_PutString_P(PSTR("   Messb. 2MOhm      \r\n"));		// 0100 0100
-		LCD_PutString_P(PSTR("   Messb. 200kOhm    \r\n"));		// 0100 0101
-		LCD_PutString_P(PSTR("   Messb. 20kOhm     \r\n"));		// 0100 0110
-		LCD_PutString_P(PSTR("   Messb. 2kOhm      \r\n"));		// 0100 0111
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		arrow = 1;
-		break;
-	case 0x43:													// 0100 0011
-	{
-		LCD_PutString_P(PSTR("  Widerstand 20MOhm  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x44:													// 0100 0100
-	{
-		LCD_PutString_P(PSTR("  Widerstand 2MOhm   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x45:													// 0100 0101
-	{
-		LCD_PutString_P(PSTR("  Widerstand 200kOhm \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x46:													// 0100 0110
-	{
-		LCD_PutString_P(PSTR("  Widerstand 20kOhm  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x47:													// 0100 0111
-	{
-		LCD_PutString_P(PSTR("  Widerstand 2kOhm   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x80:													// 1000 0000
-	{
-		LCD_PutString_P(PSTR(" Durchgangspruefung  \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-	}
-		break;
-	case 0x90:													// 1001 0000
-	{
-		LCD_PutString_P(PSTR("   Frequenzmessung   \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("                     \r\n"));
-		LCD_PutString_P(PSTR("<                    \r\n"));
-
-	}
-		break;
-	default:
-		break;
+void gui_DisplayMainMenu(void) {
+	// Display menu content
+	LCD_Clear();
+	// display selected entry + left and right entries
+	uint8_t leftEntry =
+			gui.selectedEntry > 0 ?
+					gui.selectedEntry - 1 : GUI_NUM_MENU_ENTRIES - 1;
+	uint8_t rightEntry = (gui.selectedEntry + 1) % GUI_NUM_MENU_ENTRIES;
+	LCD_GotoXY(0, 7);
+	LCD_PutString_P(menuNames[leftEntry]);
+	LCD_GotoXY(8, 7);
+	LCD_PutString_P(menuNames[gui.selectedEntry]);
+	LCD_GotoXY(16, 7);
+	LCD_PutString_P(menuNames[rightEntry]);
+	// display arrow up
+	LCD_GotoXY(10, 6);
+	LCD_PutChar(0x5E);
+	LCD_GotoXY(5, 5);
+	LCD_PutString_P(
+			rangeNames[gui.selectedEntry][gui.selectedRanges[gui.selectedEntry]]);
+	if (!gui.measurementActive) {
+		// currently not measuring anything
+		LCD_GotoXY(0, 1);
+		LCD_PutStringLarge("----------");
+	} else {
+		// display measurement result
+		char result[12];
+		gui_string_fromInt(gui.measurementResult, result,
+				menuDisplayDigits[gui.selectedEntry],
+				menuDisplayDots[gui.selectedEntry]);
+		LCD_GotoXY(0, 1);
+		LCD_PutStringLarge(result);
+		LCD_GotoXY(15, 3);
+		LCD_PutString_P(unitNames[gui.selectedEntry]);
 	}
 	LCD_Update();
 }
 
-/*
- void Open()
- {
- for(unsigned char i=0;i<31;i++)
- {
- LCD_DrawSquare(62-2*i,31-i,66+2*i,33+i,1);
- LCD_Update();
- _delay_ms(50);
- }
- for(unsigned char i=30;i!=0;i--)
- {
- LCD_DrawSquare(62-2*i,31-i,66+2*i,33+i,0);
- LCD_Update();
- _delay_ms(50);
- }
+void gui_HandleUserInput(void) {
+	if (joy_Pressed(JOY_LEFT)) {
+		// switch to left entry
+		// use some fancy animation, just because ;)
+		uint8_t i;
+		uint8_t leftEntry =
+				gui.selectedEntry > 0 ?
+						gui.selectedEntry - 1 : GUI_NUM_MENU_ENTRIES - 1;
+		uint8_t rightEntry = (gui.selectedEntry + 1) % GUI_NUM_MENU_ENTRIES;
+		uint8_t newLeftEntry =
+				leftEntry > 0 ? leftEntry - 1 : GUI_NUM_MENU_ENTRIES - 1;
+		for (i = 1; i < 8; i++) {
+			LCD_WipeLine(7);
+			// move leftEntry into middle and middle entry to the right
+			LCD_GotoXY(0 + i, 7);
+			LCD_PutString_P(menuNames[leftEntry]);
+			LCD_GotoXY(8 + i, 7);
+			LCD_PutString_P(menuNames[gui.selectedEntry]);
+			// fade out right entry
+			if (16 + i < 20) {
+				LCD_GotoXY(16 + i, 7);
+				LCD_PutString_P(menuNames[rightEntry]);
+				// clear last column
+				LCD_PutChar(' ');
+			}
+			// fade in new left entry
+			if (i > 3) {
+				LCD_GotoXY(0, 7);
+				LCD_PutString_P(&menuNames[newLeftEntry][8 - i]);
+			}
+			LCD_Update();
+			time_Waitms(50);
+		}
+		gui.selectedEntry = leftEntry;
+		gui.measurementActive = 0;
+	}
+	if (joy_Pressed(JOY_RIGHT)) {
+		// switch to right entry
+		// use some fancy animation, just because ;)
+		uint8_t i;
+		uint8_t leftEntry =
+				gui.selectedEntry > 0 ?
+						gui.selectedEntry - 1 : GUI_NUM_MENU_ENTRIES - 1;
+		uint8_t rightEntry = (gui.selectedEntry + 1) % GUI_NUM_MENU_ENTRIES;
+		uint8_t newRightEntry = (gui.selectedEntry + 2) % GUI_NUM_MENU_ENTRIES;
+		for (i = 1; i < 8; i++) {
+			LCD_WipeLine(7);
+			// move rightEntry into middle and middle entry to the left
+			LCD_GotoXY(8 - i, 7);
+			LCD_PutString_P(menuNames[gui.selectedEntry]);
+			LCD_GotoXY(16 - i, 7);
+			LCD_PutString_P(menuNames[rightEntry]);
+			// fade out left entry
+			if (i < 5) {
+				LCD_GotoXY(0, 7);
+				LCD_PutString_P(&menuNames[leftEntry][i]);
+			}
+			// fade in new right entry
+			if (24 - i < 20) {
+				LCD_GotoXY(24 - i, 7);
+				LCD_PutString_P(menuNames[newRightEntry]);
+				// clear last column
+				LCD_PutChar(' ');
+			}
+			LCD_Update();
+			time_Waitms(50);
+		}
+		gui.selectedEntry = rightEntry;
+		gui.measurementActive = 0;
+	}
+	if (joy_Pressed(JOY_UP)) {
+		// switch through ranges
+		gui.selectedRanges[gui.selectedEntry] =
+				(gui.selectedRanges[gui.selectedEntry] + 1)
+						% menuEntryRanges[gui.selectedEntry];
+		gui.measurementActive = 0;
+	}
+	if (joy_Pressed(JOY_PUSH)) {
+		// enable measurement/enter menu
+		if (gui.selectedEntry < GUI_NUM_MEASUREMENT_ENTRIES) {
+			// selected entry is a measurement entry
+			gui.measurementActive = 1;
+		}
+		if (gui.selectedEntry == GUI_ENTER_MENU) {
+			gui_SettingsMenu();
+		}
+	}
+}
 
- }
- */
+void gui_TakeMeasurement(void) {
+	switch (gui.selectedEntry) {
+	case GUI_MEASURE_FREQUENCY:
+		// convert auto range to 0xFF and take measurement
+		gui.measurementResult = cnt_TakeMeasurement(
+				gui.selectedRanges[GUI_MEASURE_FREQUENCY] > 0 ?
+						gui.selectedRanges[GUI_MEASURE_FREQUENCY] :
+						COUNTER_RANGE_AUTO);
+		break;
+	case GUI_MEASURE_DUTY:
+		if (gui.selectedRanges[GUI_MEASURE_DUTY] == 0) {
+			// measure duty cycle of TTL input
+			counter_SelectInput(CNT_IN_TTL, CNT_TTL_PRE_1);
+		} else {
+			// measure duty cycle of BNC input
+			counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
+		}
+		gui.measurementResult = counter_MeasureDuty(2000);
+		break;
+	default:
+		gui.measurementResult = 0;
+		break;
+	}
+}
+
+void gui_SettingsMenu(void) {
+	uint8_t selectedEntry = 0;
+	do {
+		// display settings menu
+		LCD_Clear();
+		LCD_GotoXY(1, 0);
+		LCD_PutString_PLarge(PSTR(" Settings"));
+		LCD_GotoXY(1, 2);
+		LCD_PutString_P(PSTR("Cnt-Ref:"));
+		if (counter.refInternal) {
+			LCD_PutString_P(PSTR("Internal"));
+		} else if (counter.refExternal) {
+			LCD_PutString_P(PSTR("External"));
+		}
+		LCD_GotoXY(0, 2 + selectedEntry);
+		// display arrow
+		LCD_PutChar(0x10);
+		LCD_Update();
+		time_Waitms(100);
+		if (joy_Pressed(JOY_UP)) {
+			// move arrow up (with wrap-around)
+			selectedEntry =
+					selectedEntry > 0 ?
+							selectedEntry - 1 : GUI_NUM_SETTINGS_ENTRIES - 1;
+		}
+		if (joy_Pressed(JOY_DOWN)) {
+			// move arrow down (with wrap-around)
+			selectedEntry = (selectedEntry + 1) % GUI_NUM_SETTINGS_ENTRIES;
+		}
+		if (joy_Pressed(JOY_RIGHT | JOY_PUSH)) {
+			// execute menu entry
+			switch (selectedEntry) {
+			case 0:
+				// toggle counter reference
+				if (!counter.refInternal) {
+					counter_RefInternal();
+				} else {
+					if (counter_RefExternal()) {
+						LCD_Clear();
+						LCD_GotoXY(5, 0);
+						LCD_PutString_PLarge(PSTR("Error"));
+						LCD_GotoXY(0, 2);
+						LCD_PutString_P(PSTR("Couldn't switch to\r\n"
+								"external reference:\r\n"
+								"Verify that 10MHz are\r\n"
+								"applied at Ref BNC"));
+						LCD_Update();
+						while (!joy_Pressed(
+								JOY_LEFT | JOY_RIGHT | JOY_UP | JOY_DOWN
+										| JOY_PUSH))
+							;
+					}
+				}
+				break;
+			}
+		}
+	} while (!joy_Pressed(JOY_LEFT));
+}
+
+void gui_string_fromInt(int32_t value, char *dest, uint8_t digits, uint8_t dot) {
+	uint32_t divider = 1;
+	uint8_t i;
+	if (value < 0) {
+		*dest++ = '-';
+		value = -value;
+	}
+	for (i = 1; i < digits; i++)
+		divider *= 10;
+
+	for (i = digits; i > 0; i--) {
+		if (i == dot)
+			*dest++ = '.';
+		uint32_t c = value / divider;
+		*dest++ = (c % 10) + '0';
+		value -= c * divider;
+		divider /= 10;
+	}
+	*dest = 0;
+}
