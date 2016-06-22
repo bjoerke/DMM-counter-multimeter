@@ -1,20 +1,8 @@
-#ifndef _JOY_H_
-#define _JOY_H_
+#ifndef F_CPU
+#define F_CPU 16000000UL
+#endif
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <util/delay.h>
-#include <avr/pgmspace.h>
-#include <avr/wdt.h>
-
-#include "systime.h"
-#include "gui.h"
-
-#define JOY_PIN			PINA
-#define JOY_DDR			DDRA
-#define JOY_PORT		PORTA
 
 #define JOY_UP_PIN		PA7
 #define JOY_RIGHT_PIN 	PA4
@@ -22,21 +10,12 @@
 #define JOY_LEFT_PIN	PA5
 #define JOY_PUSH_PIN	PA3
 
-#define JOY_MASK 		((1<<JOY_UP_PIN)|(1<<JOY_RIGHT_PIN)|(1<<JOY_DOWN_PIN)|(1<<JOY_LEFT_PIN)|(1<<JOY_PUSH_PIN))
-
-#define JOY_UP			0x80
-#define JOY_RIGHT		0x10
-#define JOY_DOWN		0x40
-#define JOY_LEFT		0x20
-#define JOY_PUSH		0x08
-
-struct {
-	uint8_t state;
-	uint8_t pressed;
-} joy;
-
-char wait_joy_button();
-char wait_back_button();
+#define JOY_UP			(1<<JOY_UP_PIN)
+#define JOY_RIGHT		(1<<JOY_RIGHT_PIN)
+#define JOY_DOWN		(1<<JOY_DOWN_PIN)
+#define JOY_LEFT		(1<<JOY_LEFT_PIN)
+#define JOY_PUSH		(1<<JOY_PUSH_PIN)
+#define JOY_NONE        0x00
 
 /**
  * \brief Initializes joystick
@@ -44,28 +23,13 @@ char wait_back_button();
 void joy_Init(void);
 
 /**
- * \brief Reports if a joystick button has been pressed
- *
- * Each press is only reported once.
- *
- * \param joymask Joystick button that will be checked.
- * \return Mask of pressed buttons
+ * Wait for a button to be pressed
+ * @return id of pressed button
  */
-uint8_t joy_Pressed(uint8_t joymask);
+uint8_t joy_Wait(void);
 
 /**
- * \brief Reports if a joystick button is currently pressed
- *
- * \param joymask Joystick button that will be checked.
- * \return Mask of pressed buttons
+ * Gets the pressed button if any
+ * @return the currently pressed button (or JOY_NONE)
  */
-uint8_t joy_State(uint8_t joymask);
-
-/**
- *  \brief Reads joystick pins, debounces and writes new state
- *
- *  see: https://www.mikrocontroller.net/articles/Entprellung
- */
-void joy_Update(void);
-
-#endif
+uint8_t joy_GetState(void);
