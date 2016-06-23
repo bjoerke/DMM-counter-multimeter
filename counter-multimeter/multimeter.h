@@ -44,6 +44,13 @@
 #define I_R_REF_2mA			100.02
 #define I_R_REF_200uA		1000.02
 
+#define R_R_REF_20MOhm		1000000
+#define R_R_REF_2MOhm		100000
+#define R_R_REF_200kOhm		10000
+#define R_R_REF_20kOhm		1000
+#define R_R_REF_2kOhm		100
+#define R_U_REF				3.3
+
 /*
  * positions of the DMM pins on the shift registers
  */

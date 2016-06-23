@@ -9,7 +9,7 @@ const uint8_t menuEntryRanges[GUI_NUM_MENU_ENTRIES] = { 5, 5, 6, 6, 6, 1, 7, 2,
 		1, 1 };
 
 // number of displayed digits for the different measurements
-const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 5, 4, 4, 4, 4,
+const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 5, 4, 4, 4, 5,
 		4, 9, 3 };
 
 // dot-position of the different measurements (0 = no dot)

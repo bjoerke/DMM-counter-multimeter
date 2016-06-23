@@ -17,9 +17,6 @@
 #include "gui.h"
 #include "joy.h"
 
-uint8_t page = 0;
-uint8_t newpage;
-
 void uart_rx_listener(char c) {
 	UART_PutChar(c);
 }
