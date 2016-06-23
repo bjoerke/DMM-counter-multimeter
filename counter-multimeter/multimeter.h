@@ -7,36 +7,42 @@
 #include "systime.h"
 #include "shiftreg.h"
 
-#define DMM_RANGE_10A		5
-#define DMM_RANGE_200mA		4
-#define DMM_RANGE_20mA		3
-#define DMM_RANGE_2mA		2
-#define DMM_RANGE_200uA		1
+#define DMM_RANGE_NONE		0x00
 
-#define DMM_RANGE_500V		4
-#define DMM_RANGE_200V		3
-#define DMM_RANGE_20V		2
-#define DMM_RANGE_2V		1
+#define DMM_RANGE_AUTO_U	0x0F
+#define DMM_RANGE_500V		0x04
+#define DMM_RANGE_200V		0x03
+#define DMM_RANGE_20V		0x02
+#define DMM_RANGE_2V		0x01
 
-#define DMM_RANGE_20MOhm	5
-#define DMM_RANGE_2MOhm		4
-#define DMM_RANGE_200kOhm	3
-#define DMM_RANGE_20kOhm	2
-#define DMM_RANGE_2kOhm		1
+#define DMM_RANGE_AUTO_I	0x1F
+#define DMM_RANGE_10A		0x15
+#define DMM_RANGE_200mA		0x14
+#define DMM_RANGE_20mA		0x13
+#define DMM_RANGE_2mA		0x12
+#define DMM_RANGE_200uA		0x11
 
-#define DMM_RANGE_CONTIN	1
+#define DMM_RANGE_AUTO_R	0x2F
+#define DMM_RANGE_20MOhm	0x25
+#define DMM_RANGE_2MOhm		0x24
+#define DMM_RANGE_200kOhm	0x23
+#define DMM_RANGE_20kOhm	0x22
+#define DMM_RANGE_2kOhm		0x21
 
-#define VOLTAGE		0x01		// 0000 0001
-#define CURRENT		0x02		// 0000 0010
-#define RESISTANCE	0x04		// 0000 0100
-#define CONTINUITY	0x08		// 0000 1000
+#define DMM_RANGE_CONTIN	0x3F
 
-#define A_RANGE		0xFF		// Autorange				// 1111 1111
-#define M_RANGE1	0x01		// Manual Rangemode 1		// 0000 0001
-#define M_RANGE2	0x02		// Manual Rangemode 2		// 0000 0010
-#define M_RANGE3	0x04		// Manual Rangemode 3		// 0000 0100
-#define M_RANGE4	0x08		// Manual Rangemode 4		// 0000 1000
-#define M_RANGE5	0x10		// Manual Rangemode 5		// 0001 0000
+#define U_R_SUM				10000000	// Sum of the resistors: 10M
+#define U_R_REF_500V		4000
+#define U_R_REF_200V		10000
+#define U_R_REF_20V			100000
+#define U_R_REF_2V			1000000
+
+#define I_R_SUM				1000.02
+#define I_R_REF_10A			0.02	
+#define I_R_REF_200mA		1.02
+#define I_R_REF_20mA		10.02
+#define I_R_REF_2mA			100.02
+#define I_R_REF_200uA		1000.02
 
 /*
  * positions of the DMM pins on the shift registers
@@ -77,14 +83,13 @@ void DMM_SetRRange(uint8_t rRange);
  *
  * \param not necessary
  */
-void DMM_SetCRange();
+void DMM_SetCRange(uint8_t rRange);
 
 /**
  * \brief Switches into continuity measurement mode
  *
- * \param variable selects measurement variable
  * \param range selects the range mode
  */
-int32_t meter_measure(uint8_t variable, uint8_t range);
+int32_t meter_TakeMeasurement(uint8_t range);
 
 #endif

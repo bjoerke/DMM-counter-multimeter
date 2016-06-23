@@ -9,11 +9,11 @@ const uint8_t menuEntryRanges[GUI_NUM_MENU_ENTRIES] = { 5, 5, 6, 6, 6, 1, 7, 2,
 		1, 1 };
 
 // number of displayed digits for the different measurements
-const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 4, 4, 4, 4, 4,
+const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 5, 4, 4, 4, 4,
 		4, 9, 3 };
 
 // dot-position of the different measurements (0 = no dot)
-const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 0, 0, 0, 0, 0, 0,
+const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 2, 0, 1, 0, 0, 0,
 		0, 1 };
 
 // unit names of the different measurements
@@ -192,6 +192,24 @@ void gui_TakeMeasurement(void) {
 			counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
 		}
 		gui.measurementResult = counter_MeasureDuty(2000);
+		break;
+	case GUI_MEASURE_VOLTAGE_DC:
+		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_VOLTAGE_DC] > 0 ? gui.selectedRanges[GUI_MEASURE_VOLTAGE_DC] : DMM_RANGE_AUTO_U);
+		break;
+	case GUI_MEASURE_VOLTAGE_AC:
+		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_VOLTAGE_AC] > 0 ? gui.selectedRanges[GUI_MEASURE_VOLTAGE_AC] : DMM_RANGE_AUTO_U);
+		break;
+	case GUI_MEASURE_CURRENT_DC:
+		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_CURRENT_DC] > 0 ? (gui.selectedRanges[GUI_MEASURE_CURRENT_DC] + 0x10) : DMM_RANGE_AUTO_I);		// parameter needs offset to be selected correctly
+		break;
+	case GUI_MEASURE_CURRENT_AC:
+		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_CURRENT_AC] > 0 ? (gui.selectedRanges[GUI_MEASURE_CURRENT_AC] + 0x10) : DMM_RANGE_AUTO_I);		// parameter needs offset to be selected correctly
+		break;
+	case GUI_MEASURE_RESISTANCE:
+		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_RESISTANCE] > 0 ? (gui.selectedRanges[GUI_MEASURE_RESISTANCE] + 0x20) : DMM_RANGE_AUTO_R);		// parameter needs offset to be selected correctly
+		break;
+	case GUI_MEASURE_CONTINUITY:
+		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_CONTINUITY] > 0 ? (gui.selectedRanges[GUI_MEASURE_CONTINUITY] + 0x30) : DMM_RANGE_CONTIN);		// parameter needs offset to be selected correctly
 		break;
 	default:
 		gui.measurementResult = 0;

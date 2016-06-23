@@ -9,6 +9,7 @@
 #include "joy.h"
 #include "systime.h"
 #include "counter.h"
+#include "multimeter.h"
 
 #define GUI_MEASURE_VOLTAGE_DC			0
 #define GUI_MEASURE_VOLTAGE_AC			1
