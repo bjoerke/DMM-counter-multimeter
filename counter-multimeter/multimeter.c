@@ -143,8 +143,7 @@ void DMM_SetCRange(uint8_t rRange) {
 
 // This function evaluates which parameter and which range is requested by the user
 // ###############################################################
-// ## TODO: - Evaluate the sign!							    ##
-// ##		- Units not yet set.								##
+// ## TODO: - Units not yet set.								##
 // ##		- put the correct range in front of the unit?       ##
 // ##		  --> or just display the full result?				##
 // ##		- set up AC-Mode?									##
@@ -178,7 +177,9 @@ int32_t meter_TakeMeasurement(uint8_t range)
 
 	switch (range) 
 	{
-		// Check for Voltage Mode
+		// ############################
+		// ## Check for Voltage Mode ##
+		// ############################
 		case DMM_RANGE_AUTO_U:
 			switch(u_range_marker)
 			{
@@ -252,7 +253,9 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			u_range_marker = DMM_RANGE_2V;
 			break;
 
-		// Check for Current Mode
+		// ############################
+		// ## Check for Current Mode ##
+		// ############################
 		case DMM_RANGE_AUTO_I:
 			switch(i_range_marker)
 			{
@@ -316,13 +319,13 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			corr_result *= 10;											// return the result + 1 position after the decimal point
 			i_range_marker = DMM_RANGE_10A;
 			break;
-		case DMM_RANGE_200mA:
+		case DMM_RANGE_200mA:											// needs to display an 'm' for milli-Ampere
 			DMM_SetIRange(DMM_RANGE_200mA);
 			corr_result = (result / I_R_REF_200mA) / 15;				// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;										// return the result in mA + 1 position after the decimal point
 			i_range_marker = DMM_RANGE_200mA;
 			break;
-		case DMM_RANGE_20mA:
+		case DMM_RANGE_20mA:											// needs to display an 'm' for milli-Ampere
 			DMM_SetIRange(DMM_RANGE_20mA);
 			corr_result = (result / I_R_REF_20mA) / 15;					// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;										// return the result in mA + 1 position after the decimal point
@@ -332,20 +335,22 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			//LCD_PutChar(0x6D);
 			////LCD_Update();
 			break;
-		case DMM_RANGE_2mA:
+		case DMM_RANGE_2mA:												// needs to display an 'm' for milli-Ampere
 			DMM_SetIRange(DMM_RANGE_2mA);
 			corr_result = (result / I_R_REF_2mA) / 15;					// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;										// return the result in mA + 1 position after the decimal point
 			i_range_marker = DMM_RANGE_2mA;
 			break;
-		case DMM_RANGE_200uA:
+		case DMM_RANGE_200uA:											// needs to display an 'u' for micro-Ampere
 			DMM_SetIRange(DMM_RANGE_200uA);
 			corr_result = (result / I_R_REF_200uA) / 15;				// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000000;									// return the result in uA + 1 position after the decimal point
 			i_range_marker = DMM_RANGE_200uA;
 			break;
 
-		// Check for Resistance Mode
+		// ###############################
+		// ## Check for Resistance Mode ##
+		// ###############################
 		case DMM_RANGE_AUTO_R:											// To be optimized
 			switch(r_range_marker)
 			{
@@ -425,7 +430,9 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			r_range_marker = DMM_RANGE_2kOhm;
 			break;
 
-		// Check for Continuity Mode
+		// ###############################
+		// ## Check for Continuity Mode ##
+		// ###############################
 		case DMM_RANGE_CONTIN:											// TODO
 			// Idee:	- Aehnlich wie Auto-R-Modus aufbauen.
 			//			- Kleinsten Widerstandsmessbereich auswaehlen (2kOhm)
@@ -434,8 +441,73 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			//			- Je nach Ergebnis Farbwechsel des Displays: Bei Durchgang gruen und andernfalls rot.
 
 			//DMM_SetCRange(DMM_RANGE_CONTIN);
+
+			switch(r_range_marker)
+			{
+				case DMM_RANGE_20MOhm:
+				DMM_SetRRange(DMM_RANGE_20MOhm);
+				break;
+				case DMM_RANGE_2MOhm:
+				DMM_SetRRange(DMM_RANGE_2MOhm);
+				break;
+				case DMM_RANGE_200kOhm:
+				DMM_SetRRange(DMM_RANGE_200kOhm);
+				break;
+				case DMM_RANGE_20kOhm:
+				DMM_SetRRange(DMM_RANGE_20kOhm);
+				break;
+				case DMM_RANGE_2kOhm:
+				DMM_SetRRange(DMM_RANGE_2kOhm);
+				break;
+			}
+			time_Waitms(100);
+			adc = ADC_get(1);
+			if((adc < 100) && (r_range_marker > DMM_RANGE_2kOhm))
+			{
+				r_range_marker --;
+			}
+			else if((adc > 900) && (u_range_marker < DMM_RANGE_20MOhm))
+			{
+				r_range_marker ++;
+			}
+			else
+			{
+				result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
+				
+				switch(r_range_marker)
+				{
+					case DMM_RANGE_20MOhm:
+					corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
+					break;
+					case DMM_RANGE_2MOhm:
+					corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
+					break;
+					case DMM_RANGE_200kOhm:
+					corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
+					break;
+					case DMM_RANGE_20kOhm:
+					corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
+					break;
+					case DMM_RANGE_2kOhm:
+					corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
+					if(adc < 6)				// if adc is smaller 6 (< 11 Ohm) change display-colour
+					{
+						// change display-colour
+						//Backlight_LED(BL_RED_ON);
+						// works! but it needs a switch-back-function --> main?
+					}
+					break;
+				}
+			}
 			break;
 	}
-
-	return corr_result;
+	
+	if( !(PINB & (1 << PINB2)) )
+	{
+		return -corr_result;
+	}
+	else
+	{
+		return corr_result;
+	}
 }
