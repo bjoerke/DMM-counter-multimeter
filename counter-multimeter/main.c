@@ -22,10 +22,19 @@ void uart_rx_listener(char c) {
 }
 
 int main(void) {
-	// set PB0-PB3 as output
-	DDRB = 0x0F;
-	// set PB0-PB3 on high-level (internal Pull-Up on)
-	PORTB |= 0x0F;		// Required for DMM Board DMM Board 2013
+	//// set PB0-PB3 as output
+	//DDRB = 0x0F;
+	//// set PB0-PB3 on high-level (internal Pull-Up on)
+	//PORTB |= 0x0F;		// Required for DMM Board DMM Board 2013
+
+	// set PB0, PB1, PB3 as output
+	DDRB = 0x0B;		// 1011
+	// set PB0, PB1, PB3 on high-level (internal Pull-Up on)
+	PORTB |= 0x0B;		// Required for DMM Board DMM Board 2013
+	// set PB2 as input
+	DDRB &= ~(1 << PINB2);
+	// set PB2 on high-level (internal Pull-Up on)
+	PORTB |= (1 << PINB2);
 
 	LCD_Init();
 	UART_Init();
