@@ -182,7 +182,6 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 		if (range == DMM_RANGE_AUTO) {
 			if (selectedAutoRange > 4 || selectedAutoRange < 1)
 				selectedAutoRange = 4;
-			DMM_SetURange(selectedAutoRange);
 
 			time_Waitms(100);
 			if ((adc < 90) && (selectedAutoRange > DMM_RANGE_2V)) {
@@ -192,23 +191,20 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 			}
 			actualRange = selectedAutoRange;
 		}
+		DMM_SetURange(actualRange);
 		if (adc > 1000)
 			outOfRange = 1;
 		switch (actualRange) {
 		case DMM_RANGE_500V:
-			DMM_SetURange(DMM_RANGE_500V);
 			corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		case DMM_RANGE_200V:
-			DMM_SetURange(DMM_RANGE_200V);
 			corr_result = ((result / U_R_REF_200V) * U_R_SUM) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		case DMM_RANGE_20V:
-			DMM_SetURange(DMM_RANGE_20V);
 			corr_result = ((result / U_R_REF_20V) * U_R_SUM) / 15;// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		case DMM_RANGE_2V:
-			DMM_SetURange(DMM_RANGE_2V);
 			corr_result = ((result / U_R_REF_2V) * U_R_SUM) / 15;// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		}
@@ -221,18 +217,18 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 		// ############################
 		actualRange = range;
 		if (range == DMM_RANGE_AUTO) {
-			if (selectedAutoRange > 5 || selectedAutoRange < 1)
-				selectedAutoRange = 5;
-			DMM_SetIRange(selectedAutoRange);
+			if (selectedAutoRange > 4 || selectedAutoRange < 1)
+				selectedAutoRange = 4;
 
 			time_Waitms(100);
 			if ((adc < 90) && (selectedAutoRange > DMM_RANGE_200uA)) {
 				selectedAutoRange--;
-			} else if ((adc > 1000) && (selectedAutoRange < DMM_RANGE_10A)) {
+			} else if ((adc > 1000) && (selectedAutoRange < DMM_RANGE_200mA)) {
 				selectedAutoRange++;
 			}
 			actualRange = selectedAutoRange;
 		}
+		DMM_SetIRange(actualRange);
 		if (adc > 1000)
 			outOfRange = 1;
 		switch (actualRange) {
@@ -266,7 +262,6 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 		if (range == DMM_RANGE_AUTO) {
 			if (selectedAutoRange > 5 || selectedAutoRange < 1)
 				selectedAutoRange = 5;
-			DMM_SetRRange(selectedAutoRange);
 
 			time_Waitms(100);
 			if ((adc < 70) && (selectedAutoRange > DMM_RANGE_2kOhm)) {
@@ -276,30 +271,26 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 			}
 			actualRange = selectedAutoRange;
 		}
+		DMM_SetRRange(actualRange);
 		if (adc > 900)
 			outOfRange = 1;
 		switch (actualRange) {
 		case DMM_RANGE_20MOhm:
 			// needs to display an 'k' for kilo-Ohm
-			DMM_SetRRange(DMM_RANGE_20MOhm);
 			corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
 			break;
 		case DMM_RANGE_2MOhm:
 			// needs to display an 'k' for kilo-Ohm
-			DMM_SetRRange(DMM_RANGE_2MOhm);
 			corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
 			break;
 		case DMM_RANGE_200kOhm:
 			// needs to display an 'k' for kilo-Ohm
-			DMM_SetRRange(DMM_RANGE_200kOhm);
 			corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
 			break;
 		case DMM_RANGE_20kOhm:
-			DMM_SetRRange(DMM_RANGE_20kOhm);
 			corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
 			break;
 		case DMM_RANGE_2kOhm:
-			DMM_SetRRange(DMM_RANGE_2kOhm);
 			corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
 			break;
 		}
