@@ -32,6 +32,11 @@ void time_Waitms(uint16_t ms) {
 ISR(TIMER3_COMPA_vect) {
 	// timer 3 overflowed -> 1 ms has passed
 	time.ms++;
+	if (time.beep) {
+		PORTB ^= (1 << PB3);
+	} else {
+		PORTB &= ~(1 << PB3);
+	}
 	static uint8_t cnt = 0;
 	cnt++;
 	if (cnt >= 10) {

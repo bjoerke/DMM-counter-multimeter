@@ -319,9 +319,11 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 		corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
 		if (corr_result < 20) {
 			// change display-colour
+			time.beep = 1;
 			Backlight_LED(BL_RED_ON);
 			// works! but it needs a switch-back-function --> main?
 		} else {
+			time.beep = 0;
 			Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
 		}
 		break;

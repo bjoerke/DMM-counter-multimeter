@@ -8,6 +8,7 @@
 struct {
 	volatile uint32_t ms;
 	void (*callback)(void);
+	uint8_t beep;
 } time;
 
 /**
