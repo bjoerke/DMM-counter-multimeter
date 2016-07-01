@@ -35,9 +35,6 @@ struct {
 	uint8_t pressed;
 } joy;
 
-char wait_joy_button();
-char wait_back_button();
-
 /**
  * \brief Initializes joystick
  */
