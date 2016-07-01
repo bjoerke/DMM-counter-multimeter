@@ -281,7 +281,7 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			{
 				i_range_marker --;
 			}
-			else if((adc > 900) && (i_range_marker < DMM_RANGE_10A))
+			else if((adc > 1100) && (i_range_marker < DMM_RANGE_10A))
 			{
 				i_range_marker ++;
 			}
@@ -376,7 +376,7 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			{
 				r_range_marker --;
 			}
-			else if((adc > 900) && (u_range_marker < DMM_RANGE_20MOhm))
+			else if((adc > 1100) && (u_range_marker < DMM_RANGE_20MOhm))
 			{
 				r_range_marker ++;
 			}
@@ -466,7 +466,7 @@ int32_t meter_TakeMeasurement(uint8_t range)
 			{
 				r_range_marker --;
 			}
-			else if((adc > 900) && (u_range_marker < DMM_RANGE_20MOhm))
+			else if((adc > 1100) && (u_range_marker < DMM_RANGE_20MOhm))
 			{
 				r_range_marker ++;
 			}
