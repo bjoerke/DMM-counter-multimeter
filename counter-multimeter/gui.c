@@ -67,20 +67,32 @@ void gui_DisplayMainMenu(void) {
 	LCD_GotoXY(5, 5);
 	LCD_PutString_P(
 			rangeNames[gui.selectedEntry][gui.selectedRanges[gui.selectedEntry]]);
+	LCD_GotoXY(0, 1);
 	if (!gui.measurementActive) {
 		// currently not measuring anything
-		LCD_GotoXY(0, 1);
 		LCD_PutStringLarge("----------");
 	} else {
-		// display measurement result
-		char result[12];
-		gui_string_fromInt(gui.measurementResult, result,
-				menuDisplayDigits[gui.selectedEntry],
-				menuDisplayDots[gui.selectedEntry]);
-		LCD_GotoXY(0, 1);
-		LCD_PutStringLarge(result);
+		if (gui.measurementValid) {
+			// display measurement result
+			char result[12];
+			gui_string_fromInt(gui.measurementResult, result,
+					menuDisplayDigits[gui.selectedEntry],
+					menuDisplayDots[gui.selectedEntry]);
+			LCD_PutStringLarge(result);
+		} else {
+			// measurement out of range
+			LCD_PutStringLarge("OutOfRange");
+		}
 		LCD_GotoXY(15, 3);
 		LCD_PutString_P(unitNames[gui.selectedEntry]);
+		// TODO the following is only hacked together and not nicely done!
+		if (gui.selectedEntry <= GUI_MEASURE_RESISTANCE
+				&& gui.selectedRanges[gui.selectedEntry] == 0) {
+			// we are in an auto-ranging mode
+			LCD_GotoXY(0, 0);
+			LCD_PutString("Selected range:");
+			LCD_PutChar(selectedAutoRange + '0');
+		}
 	}
 	LCD_Update();
 }
@@ -194,22 +206,16 @@ void gui_TakeMeasurement(void) {
 		gui.measurementResult = counter_MeasureDuty(2000);
 		break;
 	case GUI_MEASURE_VOLTAGE_DC:
-		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_VOLTAGE_DC] > 0 ? gui.selectedRanges[GUI_MEASURE_VOLTAGE_DC] : DMM_RANGE_AUTO_U);
-		break;
 	case GUI_MEASURE_VOLTAGE_AC:
-		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_VOLTAGE_AC] > 0 ? gui.selectedRanges[GUI_MEASURE_VOLTAGE_AC] : DMM_RANGE_AUTO_U);
-		break;
 	case GUI_MEASURE_CURRENT_DC:
-		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_CURRENT_DC] > 0 ? (gui.selectedRanges[GUI_MEASURE_CURRENT_DC] + 0x10) : DMM_RANGE_AUTO_I);		// parameter needs offset to be selected correctly
-		break;
 	case GUI_MEASURE_CURRENT_AC:
-		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_CURRENT_AC] > 0 ? (gui.selectedRanges[GUI_MEASURE_CURRENT_AC] + 0x10) : DMM_RANGE_AUTO_I);		// parameter needs offset to be selected correctly
-		break;
 	case GUI_MEASURE_RESISTANCE:
-		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_RESISTANCE] > 0 ? (gui.selectedRanges[GUI_MEASURE_RESISTANCE] + 0x20) : DMM_RANGE_AUTO_R);		// parameter needs offset to be selected correctly
-		break;
 	case GUI_MEASURE_CONTINUITY:
-		gui.measurementResult = meter_TakeMeasurement(gui.selectedRanges[GUI_MEASURE_CONTINUITY] > 0 ? (gui.selectedRanges[GUI_MEASURE_CONTINUITY] + 0x30) : DMM_RANGE_CONTIN);		// parameter needs offset to be selected correctly
+		gui.measurementValid = !meter_TakeMeasurement(&gui.measurementResult,
+				gui.selectedEntry,
+				gui.selectedRanges[gui.selectedEntry] > 0 ?
+						(gui.selectedRanges[gui.selectedEntry]) :
+						DMM_RANGE_AUTO);
 		break;
 	default:
 		gui.measurementResult = 0;

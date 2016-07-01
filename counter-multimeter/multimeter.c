@@ -1,14 +1,10 @@
 #include "multimeter.h"
 
-static uint8_t u_range_marker = DMM_RANGE_500V;
-static uint8_t i_range_marker = DMM_RANGE_10A;
-static uint8_t r_range_marker = DMM_RANGE_20MOhm;
-
 void ADC_Init(void) {
 	ADCSRA = 0x00;							// ADC Control and Status Register A
 //	ADMUX = (1 << REFS0);// | (1 << ADLAR);									// REFS0 (Bit6 in ADMUX) = ADC Voltage Reference Selection => REFS[1:0] = 01 => AVcc with external capacitor at AREF pin
-																			// ADLAR (Bit5 in ADMUX) = ADC Left Adjust Result (in this case TRUE)
-																			// [REMOVED] MUX0 (Bit0 in ADMUX) = Analog Channel and Gain Selection Bit0 => MUX[4:0] = 00000 => Single Ended Input = ADC0
+			// ADLAR (Bit5 in ADMUX) = ADC Left Adjust Result (in this case TRUE)
+			// [REMOVED] MUX0 (Bit0 in ADMUX) = Analog Channel and Gain Selection Bit0 => MUX[4:0] = 00000 => Single Ended Input = ADC0
 
 //	ACSR  =  0x80;															// Analog Comparator Control and Status Register = 0000 1000 => ACIE = 1 Analog Comparator Interrupt Enable
 
@@ -25,7 +21,7 @@ void ADC_Init(void) {
 	while (ADCSRA & (1 << ADSC))	// Waiting for completion of the conversion.
 	{
 	}
-	(void) ADCW;					// Reading ADCW (ADCL + ADCH) once so the result of the next conversion can be used
+	(void) ADCW;// Reading ADCW (ADCL + ADCH) once so the result of the next conversion can be used
 }
 
 uint16_t ADC_get(uint8_t channel) {
@@ -34,7 +30,7 @@ uint16_t ADC_get(uint8_t channel) {
 
 	ADCSRA |= (1 << ADSC);						// ADSC = ADC Start Conversion
 
-	while (ADCSRA & (1 << ADSC))				// Waiting for completion of the conversion.
+	while (ADCSRA & (1 << ADSC))	// Waiting for completion of the conversion.
 	{
 	}
 	return ADCW ;
@@ -151,363 +147,189 @@ void DMM_SetCRange(uint8_t rRange) {
 //##		- optimize the Auto-R-Mode							##
 // ###############################################################
 
-int32_t meter_TakeMeasurement(uint8_t range) 
-{
+uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) {
+	uint8_t outOfRange = 0;
 	uint16_t adc;
 	double result;
 	double corr_result = 0;
 	//double dummy = 0; 
 	//uint16_t oldrange;
-	
-	if(range < DMM_RANGE_2kOhm)						// everything smaller than DMM_RANGE_2kOhm means: Voltage and Current
-	{
-		adc = ADC_get(0);							// argument: 0 = Input channel PA0
-		result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
-	}
-	else if(range >= DMM_RANGE_2kOhm)
-	{
-		adc = ADC_get(1);							// argument: 1 = Input channel PA1
-		result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
-	}
-	else if (range == DMM_RANGE_NONE)
-	{
-		// don't take measurement
-		return 666;									// Number of the beast --> Something wrong...
-	}
 
-	switch (range) 
+	if (measurement < DMM_MEASURE_R)// everything smaller than DMM_MEASURE_R means: Voltage and Current
 	{
+		adc = ADC_get(0);					// argument: 0 = Input channel PA0
+		result = (((double) adc * 3.3) / 1024);	// calculate the adc-conversion result
+	} else {
+		// Resistance (or continuity) measurement
+		adc = ADC_get(1);					// argument: 1 = Input channel PA1
+		result = (((double) adc * 3.3) / 1024);	// calculate the adc-conversion result
+	}
+	// Can't ever reach this -> not needed
+//	else if (range == DMM_RANGE_NONE) {
+//		// don't take measurement
+//		return 666;				// Number of the beast --> Something wrong...
+//	}
+
+	uint8_t actualRange;
+	switch (measurement) {
+	case DMM_MEASURE_U_DC:
+	case DMM_MEASURE_U_AC:
+		// measuring voltage
 		// ############################
 		// ## Check for Voltage Mode ##
 		// ############################
-		case DMM_RANGE_AUTO_U:
-			switch(u_range_marker)
-			{
-				case DMM_RANGE_500V:
-					DMM_SetURange(DMM_RANGE_500V);
-					break;
-				case DMM_RANGE_200V:
-					DMM_SetURange(DMM_RANGE_200V);
-					break;
-				case DMM_RANGE_20V:
-					DMM_SetURange(DMM_RANGE_20V);
-					break;
-				case DMM_RANGE_2V:
-					DMM_SetURange(DMM_RANGE_2V);
-					break;
-			}
+		actualRange = range;
+		if (range == DMM_RANGE_AUTO) {
+			if (selectedAutoRange > 4 || selectedAutoRange < 1)
+				selectedAutoRange = 4;
+			DMM_SetURange(selectedAutoRange);
+
 			time_Waitms(100);
-			adc = ADC_get(0);
-			if((adc < 100) && (u_range_marker > DMM_RANGE_2V))
-			{
-				u_range_marker --;
+			if ((adc < 90) && (selectedAutoRange > DMM_RANGE_2V)) {
+				selectedAutoRange--;
+			} else if ((adc > 1000) && (selectedAutoRange < DMM_RANGE_500V)) {
+				selectedAutoRange++;
 			}
-			else if((adc > 900) && (u_range_marker < DMM_RANGE_500V))
-			{
-				u_range_marker ++;
-			}
-			else
-			{
-				result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
-				
-				switch(u_range_marker)
-				{
-					case DMM_RANGE_500V:
-						corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-						break;
-					case DMM_RANGE_200V:
-						corr_result = ((result / U_R_REF_200V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-						break;
-					case DMM_RANGE_20V:
-						corr_result = ((result / U_R_REF_20V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-						break;
-					case DMM_RANGE_2V:
-						corr_result = ((result / U_R_REF_2V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-						break;
-				}
-			}
-			corr_result *= 100;
-			break;
+			actualRange = selectedAutoRange;
+		}
+		if (adc > 1000)
+			outOfRange = 1;
+		switch (actualRange) {
 		case DMM_RANGE_500V:
 			DMM_SetURange(DMM_RANGE_500V);
-			corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-			corr_result *= 100;													// Multiply by 100 to return as well 2 positions after the decimal point
-			u_range_marker = DMM_RANGE_500V;
+			corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		case DMM_RANGE_200V:
 			DMM_SetURange(DMM_RANGE_200V);
-			corr_result = ((result / U_R_REF_200V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-			corr_result *= 100;													// Multiply by 100 to return as well 2 positions after the decimal point
-			u_range_marker = DMM_RANGE_200V;
+			corr_result = ((result / U_R_REF_200V) * U_R_SUM) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		case DMM_RANGE_20V:
 			DMM_SetURange(DMM_RANGE_20V);
-			corr_result = ((result / U_R_REF_20V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-			corr_result *= 100;													// Multiply by 100 to return as well 2 positions after the decimal point
-			u_range_marker = DMM_RANGE_20V;
+			corr_result = ((result / U_R_REF_20V) * U_R_SUM) / 15;// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		case DMM_RANGE_2V:
 			DMM_SetURange(DMM_RANGE_2V);
-			corr_result = ((result / U_R_REF_2V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-			corr_result *= 100;													// Multiply by 100 to return as well 2 positions after the decimal point
-			u_range_marker = DMM_RANGE_2V;
+			corr_result = ((result / U_R_REF_2V) * U_R_SUM) / 15;// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
-
+		}
+		corr_result *= 100;	// Multiply by 100 to return as well 2 positions after the decimal point
+		break;
+	case DMM_MEASURE_I_DC:
+	case DMM_MEASURE_I_AC:
 		// ############################
 		// ## Check for Current Mode ##
 		// ############################
-		case DMM_RANGE_AUTO_I:
-			switch(i_range_marker)
-			{
-				case DMM_RANGE_10A:
-					DMM_SetIRange(DMM_RANGE_10A);
-					break;
-				case DMM_RANGE_200mA:
-					DMM_SetIRange(DMM_RANGE_200mA);
-					break;
-				case DMM_RANGE_20mA:
-					DMM_SetIRange(DMM_RANGE_20mA);
-					break;
-				case DMM_RANGE_2mA:
-					DMM_SetIRange(DMM_RANGE_2mA);
-					break;
-				case DMM_RANGE_200uA:
-					DMM_SetIRange(DMM_RANGE_200uA);
-					break;
-			}
-			time_Waitms(100);
-			adc = ADC_get(0);
-			if((adc < 100) && (i_range_marker > DMM_RANGE_200uA))
-			{
-				i_range_marker --;
-			}
-			else if((adc > 1100) && (i_range_marker < DMM_RANGE_10A))
-			{
-				i_range_marker ++;
-			}
-			else
-			{
-				result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
-				
-				switch(i_range_marker)
-				{
-					case DMM_RANGE_10A:
-						corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;				// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-						corr_result *= 10;													// return the result + 1 position after the decimal point
-						break;
-					case DMM_RANGE_200mA:
-						corr_result = (result / I_R_REF_200mA) / 15;						// calculate the correct input-current (divided by 15 to compensate the amplification)
-						corr_result *= 10000;												// return the result in mA + 1 position after the decimal point
-						break;
-					case DMM_RANGE_20mA:
-						corr_result = (result / I_R_REF_20mA) / 15;							// calculate the correct input-current (divided by 15 to compensate the amplification)
-						corr_result *= 10000;												// return the result in mA + 1 position after the decimal point
-						break;
-					case DMM_RANGE_2mA:
-						corr_result = (result / I_R_REF_2mA) / 15;							// calculate the correct input-current (divided by 15 to compensate the amplification)
-						corr_result *= 10000;												// return the result in mA + 1 position after the decimal point
-						break;
-					case DMM_RANGE_200uA:
-						corr_result = (result / I_R_REF_200uA) / 15;						// calculate the correct input-current (divided by 15 to compensate the amplification)
-						corr_result *= 10000000;											// return the result in uA + 1 position after the decimal point
-				}
-			}
-			break;
-		case DMM_RANGE_10A:
-			DMM_SetIRange(DMM_RANGE_10A);
-			corr_result = (result / I_R_REF_10A) / 15;					// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10;											// return the result + 1 position after the decimal point
-			i_range_marker = DMM_RANGE_10A;
-			break;
-		case DMM_RANGE_200mA:											// needs to display an 'm' for milli-Ampere
-			DMM_SetIRange(DMM_RANGE_200mA);
-			corr_result = (result / I_R_REF_200mA) / 15;				// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;										// return the result in mA + 1 position after the decimal point
-			i_range_marker = DMM_RANGE_200mA;
-			break;
-		case DMM_RANGE_20mA:											// needs to display an 'm' for milli-Ampere
-			DMM_SetIRange(DMM_RANGE_20mA);
-			corr_result = (result / I_R_REF_20mA) / 15;					// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;										// return the result in mA + 1 position after the decimal point
-			i_range_marker = DMM_RANGE_20mA;
-			//// Trying to display an "m"
-			//LCD_GotoXY(14, 3);
-			//LCD_PutChar(0x6D);
-			////LCD_Update();
-			break;
-		case DMM_RANGE_2mA:												// needs to display an 'm' for milli-Ampere
-			DMM_SetIRange(DMM_RANGE_2mA);
-			corr_result = (result / I_R_REF_2mA) / 15;					// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;										// return the result in mA + 1 position after the decimal point
-			i_range_marker = DMM_RANGE_2mA;
-			break;
-		case DMM_RANGE_200uA:											// needs to display an 'u' for micro-Ampere
-			DMM_SetIRange(DMM_RANGE_200uA);
-			corr_result = (result / I_R_REF_200uA) / 15;				// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000000;									// return the result in uA + 1 position after the decimal point
-			i_range_marker = DMM_RANGE_200uA;
-			break;
+		actualRange = range;
+		if (range == DMM_RANGE_AUTO) {
+			if (selectedAutoRange > 5 || selectedAutoRange < 1)
+				selectedAutoRange = 5;
+			DMM_SetIRange(selectedAutoRange);
 
-		// ###############################
-		// ## Check for Resistance Mode ##
-		// ###############################
-		case DMM_RANGE_AUTO_R:											// To be optimized
-			switch(r_range_marker)
-			{
-				case DMM_RANGE_20MOhm:
-					DMM_SetRRange(DMM_RANGE_20MOhm);
-					break;
-				case DMM_RANGE_2MOhm:
-					DMM_SetRRange(DMM_RANGE_2MOhm);
-					break;
-				case DMM_RANGE_200kOhm:
-					DMM_SetRRange(DMM_RANGE_200kOhm);
-					break;
-				case DMM_RANGE_20kOhm:
-					DMM_SetRRange(DMM_RANGE_20kOhm);
-					break;
-				case DMM_RANGE_2kOhm:
-					DMM_SetRRange(DMM_RANGE_2kOhm);
-					break;
-			}
 			time_Waitms(100);
-			adc = ADC_get(1);
-			if((adc < 100) && (r_range_marker > DMM_RANGE_2kOhm))
-			{
-				r_range_marker --;
+			if ((adc < 90) && (selectedAutoRange > DMM_RANGE_200uA)) {
+				selectedAutoRange--;
+			} else if ((adc > 1000) && (selectedAutoRange < DMM_RANGE_10A)) {
+				selectedAutoRange++;
 			}
-			else if((adc > 1100) && (u_range_marker < DMM_RANGE_20MOhm))
-			{
-				r_range_marker ++;
-			}
-			else
-			{
-				result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
-				
-				switch(r_range_marker)
-				{
-					case DMM_RANGE_20MOhm:
-						corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
-						break;
-					case DMM_RANGE_2MOhm:
-						corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
-						break;
-					case DMM_RANGE_200kOhm:
-						corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
-						break;
-					case DMM_RANGE_20kOhm:
-						corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
-						break;
-					case DMM_RANGE_2kOhm:
-						corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
-						break;
-				}
-			}
+			actualRange = selectedAutoRange;
+		}
+		if (adc > 1000)
+			outOfRange = 1;
+		switch (actualRange) {
+		case DMM_RANGE_10A:
+			corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
+			corr_result *= 10;// return the result + 1 position after the decimal point
 			break;
-		case DMM_RANGE_20MOhm:													// needs to display an 'k' for kilo-Ohm
+		case DMM_RANGE_200mA:
+			corr_result = (result / I_R_REF_200mA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
+			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			break;
+		case DMM_RANGE_20mA:
+			corr_result = (result / I_R_REF_20mA) / 15;	// calculate the correct input-current (divided by 15 to compensate the amplification)
+			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			break;
+		case DMM_RANGE_2mA:
+			corr_result = (result / I_R_REF_2mA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
+			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			break;
+		case DMM_RANGE_200uA:
+			corr_result = (result / I_R_REF_200uA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
+			corr_result *= 10000000;// return the result in uA + 1 position after the decimal point
+			break;
+		}
+		break;
+	case DMM_MEASURE_R:
+		// ############################
+		// ## Check for Resistance Mode ##
+		// ############################
+		actualRange = range;
+		if (range == DMM_RANGE_AUTO) {
+			if (selectedAutoRange > 5 || selectedAutoRange < 1)
+				selectedAutoRange = 5;
+			DMM_SetRRange(selectedAutoRange);
+
+			time_Waitms(100);
+			if ((adc < 70) && (selectedAutoRange > DMM_RANGE_2kOhm)) {
+				selectedAutoRange--;
+			} else if ((adc > 800) && (selectedAutoRange < DMM_RANGE_20MOhm)) {
+				selectedAutoRange++;
+			}
+			actualRange = selectedAutoRange;
+		}
+		if (adc > 900)
+			outOfRange = 1;
+		switch (actualRange) {
+		case DMM_RANGE_20MOhm:
+			// needs to display an 'k' for kilo-Ohm
 			DMM_SetRRange(DMM_RANGE_20MOhm);
 			corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
-			r_range_marker = DMM_RANGE_20MOhm;
 			break;
-		case DMM_RANGE_2MOhm:													// needs to display an 'k' for kilo-Ohm
+		case DMM_RANGE_2MOhm:
+			// needs to display an 'k' for kilo-Ohm
 			DMM_SetRRange(DMM_RANGE_2MOhm);
 			corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
-			r_range_marker = DMM_RANGE_2MOhm;
 			break;
-		case DMM_RANGE_200kOhm:													// needs to display an 'k' for kilo-Ohm
+		case DMM_RANGE_200kOhm:
+			// needs to display an 'k' for kilo-Ohm
 			DMM_SetRRange(DMM_RANGE_200kOhm);
 			corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
-			r_range_marker = DMM_RANGE_200kOhm;
 			break;
 		case DMM_RANGE_20kOhm:
 			DMM_SetRRange(DMM_RANGE_20kOhm);
 			corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
-			r_range_marker = DMM_RANGE_20kOhm;
 			break;
 		case DMM_RANGE_2kOhm:
 			DMM_SetRRange(DMM_RANGE_2kOhm);
 			corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
-			r_range_marker = DMM_RANGE_2kOhm;
 			break;
+		}
+		break;
+	case DMM_MEASURE_CONT:
+		// TODO
+		// Idee:	- Aehnlich wie Auto-R-Modus aufbauen.
+		//			- Kleinsten Widerstandsmessbereich auswaehlen (2kOhm)
+		//			- ADC-Wandlung durchfuehren, wenn adc < 5.12, liegt der Widerstand unter 10 Ohm, dann kann man das schon mal als Durchgang ansehen
+		//			- Ergebnis ausgeben
+		//			- Je nach Ergebnis Farbwechsel des Displays: Bei Durchgang gruen und andernfalls rot.
 
-		// ###############################
-		// ## Check for Continuity Mode ##
-		// ###############################
-		case DMM_RANGE_CONTIN:											// TODO
-			// Idee:	- Aehnlich wie Auto-R-Modus aufbauen.
-			//			- Kleinsten Widerstandsmessbereich auswaehlen (2kOhm)
-			//			- ADC-Wandlung durchfuehren, wenn adc < 5.12, liegt der Widerstand unter 10 Ohm, dann kann man das schon mal als Durchgang ansehen
-			//			- Ergebnis ausgeben
-			//			- Je nach Ergebnis Farbwechsel des Displays: Bei Durchgang gruen und andernfalls rot.
+		//DMM_SetCRange(DMM_RANGE_CONTIN);
+		DMM_SetRRange(DMM_RANGE_2kOhm);
+		if (adc > 900)
+			outOfRange = 1;
+		corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
+		if (corr_result < 20) {
+			// change display-colour
+			Backlight_LED(BL_RED_ON);
+			// works! but it needs a switch-back-function --> main?
+		} else {
+			Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
+		}
+		break;
+	}
 
-			//DMM_SetCRange(DMM_RANGE_CONTIN);
-
-			switch(r_range_marker)
-			{
-				case DMM_RANGE_20MOhm:
-				DMM_SetRRange(DMM_RANGE_20MOhm);
-				break;
-				case DMM_RANGE_2MOhm:
-				DMM_SetRRange(DMM_RANGE_2MOhm);
-				break;
-				case DMM_RANGE_200kOhm:
-				DMM_SetRRange(DMM_RANGE_200kOhm);
-				break;
-				case DMM_RANGE_20kOhm:
-				DMM_SetRRange(DMM_RANGE_20kOhm);
-				break;
-				case DMM_RANGE_2kOhm:
-				DMM_SetRRange(DMM_RANGE_2kOhm);
-				break;
-			}
-			time_Waitms(100);
-			adc = ADC_get(1);
-			if((adc < 100) && (r_range_marker > DMM_RANGE_2kOhm))
-			{
-				r_range_marker --;
-			}
-			else if((adc > 1100) && (u_range_marker < DMM_RANGE_20MOhm))
-			{
-				r_range_marker ++;
-			}
-			else
-			{
-				result = (((double)adc * 3.3) / 1024);		// calculate the adc-conversion result
-				
-				switch(r_range_marker)
-				{
-					case DMM_RANGE_20MOhm:
-					corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
-					break;
-					case DMM_RANGE_2MOhm:
-					corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
-					break;
-					case DMM_RANGE_200kOhm:
-					corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
-					break;
-					case DMM_RANGE_20kOhm:
-					corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
-					break;
-					case DMM_RANGE_2kOhm:
-					corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
-					if(adc < 6)				// if adc is smaller 6 (< 11 Ohm) change display-colour
-					{
-						// change display-colour
-						//Backlight_LED(BL_RED_ON);
-						// works! but it needs a switch-back-function --> main?
-					}
-					break;
-				}
-			}
-			break;
+	if (!(PINB & (1 << PINB2))) {
+		corr_result = -corr_result;
 	}
-	
-	if( !(PINB & (1 << PINB2)) )
-	{
-		return -corr_result;
-	}
-	else
-	{
-		return corr_result;
-	}
+	*res = (int32_t) corr_result;
+	return outOfRange;
 }

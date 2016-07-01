@@ -45,6 +45,7 @@ struct {
 	uint8_t measurementActive;
 	/* result of the current measurement. Only valid if measurementActive = 1 */
 	int32_t measurementResult;
+	uint8_t measurementValid;
 } gui;
 
 /**

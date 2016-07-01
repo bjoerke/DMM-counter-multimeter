@@ -7,29 +7,34 @@
 #include "systime.h"
 #include "shiftreg.h"
 
+#define DMM_MEASURE_U_DC	0x00
+#define DMM_MEASURE_U_AC	0x01
+#define DMM_MEASURE_I_DC	0x02
+#define DMM_MEASURE_I_AC	0x03
+#define DMM_MEASURE_R		0x04
+#define DMM_MEASURE_CONT	0x05
+
+
 #define DMM_RANGE_NONE		0x00
 
-#define DMM_RANGE_AUTO_U	0x0F
+#define DMM_RANGE_AUTO		0xFF
+
 #define DMM_RANGE_500V		0x04
 #define DMM_RANGE_200V		0x03
 #define DMM_RANGE_20V		0x02
 #define DMM_RANGE_2V		0x01
 
-#define DMM_RANGE_AUTO_I	0x1F
-#define DMM_RANGE_10A		0x15
-#define DMM_RANGE_200mA		0x14
-#define DMM_RANGE_20mA		0x13
-#define DMM_RANGE_2mA		0x12
-#define DMM_RANGE_200uA		0x11
+#define DMM_RANGE_10A		0x05
+#define DMM_RANGE_200mA		0x04
+#define DMM_RANGE_20mA		0x03
+#define DMM_RANGE_2mA		0x02
+#define DMM_RANGE_200uA		0x01
 
-#define DMM_RANGE_AUTO_R	0x2F
-#define DMM_RANGE_20MOhm	0x25
-#define DMM_RANGE_2MOhm		0x24
-#define DMM_RANGE_200kOhm	0x23
-#define DMM_RANGE_20kOhm	0x22
-#define DMM_RANGE_2kOhm		0x21
-
-#define DMM_RANGE_CONTIN	0x3F
+#define DMM_RANGE_20MOhm	0x05
+#define DMM_RANGE_2MOhm		0x04
+#define DMM_RANGE_200kOhm	0x03
+#define DMM_RANGE_20kOhm	0x02
+#define DMM_RANGE_2kOhm		0x01
 
 #define U_R_SUM				10000000	// Sum of the resistors: 10M
 #define U_R_REF_500V		4000
@@ -64,6 +69,8 @@
 #define DMM_U_I_SELECTOR	14
 #define DMM_R_SELECTOR		15
 
+uint8_t selectedAutoRange;
+
 /**
  * \brief Switches into voltage measurement mode
  *
@@ -95,8 +102,12 @@ void DMM_SetCRange(uint8_t rRange);
 /**
  * \brief Switches into continuity measurement mode
  *
- * \param range selects the range mode
+ * \param *res Pointer to where the result will be written to
+ * \param measurement Selects the measurement mode (U, I, R, ...)
+ * \param range selects the range
+ *
+ * \return 0 on success, 1 if out of range
  */
-int32_t meter_TakeMeasurement(uint8_t range);
+uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range);
 
 #endif
