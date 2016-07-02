@@ -9,16 +9,12 @@ const uint8_t menuEntryRanges[GUI_NUM_MENU_ENTRIES] = { 5, 5, 6, 6, 6, 1, 7, 2,
 		1, 1 };
 
 // number of displayed digits for the different measurements
-const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 5, 4, 4, 4, 5,
+const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 5, 5, 4, 4, 5,
 		4, 9, 3 };
 
 // dot-position of the different measurements (0 = no dot)
-const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 2, 0, 1, 0, 0, 0,
+const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 2, 2, 1, 1, 0, 0,
 		0, 1 };
-
-// unit names of the different measurements
-const char PROGMEM unitNames[GUI_NUM_MEASUREMENT_ENTRIES][6] = { "V(DC)",
-		"V(AC)", "A(DC)", "A(AC)", "Ohm", "Ohm", "Hz", "%" };
 
 const char PROGMEM rangeNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_RANGES_PER_ENTRY][GUI_MAX_RANGE_NAME_LENGTH
 		+ 1] = {
@@ -84,7 +80,7 @@ void gui_DisplayMainMenu(void) {
 			LCD_PutStringLarge("OutOfRange");
 		}
 		LCD_GotoXY(15, 3);
-		LCD_PutString_P(unitNames[gui.selectedEntry]);
+		LCD_PutString(gui.measurementUnit);
 		// TODO the following is only hacked together and not nicely done!
 		if (gui.selectedEntry <= GUI_MEASURE_RESISTANCE
 				&& gui.selectedRanges[gui.selectedEntry] == 0) {
@@ -194,6 +190,10 @@ void gui_TakeMeasurement(void) {
 				gui.selectedRanges[GUI_MEASURE_FREQUENCY] > 0 ?
 						gui.selectedRanges[GUI_MEASURE_FREQUENCY] :
 						COUNTER_RANGE_AUTO);
+		gui.measurementValid = 1;
+		gui.measurementUnit[0] = 'H';
+		gui.measurementUnit[1] = 'z';
+		gui.measurementUnit[2] = 0;
 		break;
 	case GUI_MEASURE_DUTY:
 		if (gui.selectedRanges[GUI_MEASURE_DUTY] == 0) {
@@ -203,7 +203,10 @@ void gui_TakeMeasurement(void) {
 			// measure duty cycle of BNC input
 			counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
 		}
+		gui.measurementValid = 1;
 		gui.measurementResult = counter_MeasureDuty(2000);
+		gui.measurementUnit[0] = '%';
+		gui.measurementUnit[1] = 0;
 		break;
 	case GUI_MEASURE_VOLTAGE_DC:
 	case GUI_MEASURE_VOLTAGE_AC:
@@ -212,7 +215,7 @@ void gui_TakeMeasurement(void) {
 	case GUI_MEASURE_RESISTANCE:
 	case GUI_MEASURE_CONTINUITY:
 		gui.measurementValid = !meter_TakeMeasurement(&gui.measurementResult,
-				gui.selectedEntry,
+				gui.measurementUnit, gui.selectedEntry,
 				gui.selectedRanges[gui.selectedEntry] > 0 ?
 						(gui.selectedRanges[gui.selectedEntry]) :
 						DMM_RANGE_AUTO);

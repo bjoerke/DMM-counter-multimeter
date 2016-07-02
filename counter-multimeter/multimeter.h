@@ -108,6 +108,6 @@ void DMM_SetCRange(uint8_t rRange);
  *
  * \return 0 on success, 1 if out of range
  */
-uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range);
+uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement, uint8_t range);
 
 #endif

@@ -147,7 +147,7 @@ void DMM_SetCRange(uint8_t rRange) {
 //##		- optimize the Auto-R-Mode							##
 // ###############################################################
 
-uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) {
+uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement, uint8_t range) {
 	uint8_t outOfRange = 0;
 	uint16_t adc;
 	double result;
@@ -209,6 +209,8 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 			break;
 		}
 		corr_result *= 100;	// Multiply by 100 to return as well 2 positions after the decimal point
+		*unit++ = 'V';
+		*unit = 0;
 		break;
 	case DMM_MEASURE_I_DC:
 	case DMM_MEASURE_I_AC:
@@ -239,20 +241,26 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 		case DMM_RANGE_200mA:
 			corr_result = (result / I_R_REF_200mA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			*unit++ = 'm';
 			break;
 		case DMM_RANGE_20mA:
 			corr_result = (result / I_R_REF_20mA) / 15;	// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			*unit++ = 'm';
 			break;
 		case DMM_RANGE_2mA:
 			corr_result = (result / I_R_REF_2mA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			*unit++ = 'm';
 			break;
 		case DMM_RANGE_200uA:
-			corr_result = (result / I_R_REF_200uA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000000;// return the result in uA + 1 position after the decimal point
+			corr_result = (result / (I_R_REF_200uA/1000)) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
+			corr_result *= 10000;// return the result in uA + 1 position after the decimal point
+			*unit++ = 'u';
 			break;
 		}
+		*unit++ = 'A';
+		*unit = 0;
 		break;
 	case DMM_MEASURE_R:
 		// ############################
@@ -264,28 +272,34 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 				selectedAutoRange = 5;
 
 			time_Waitms(100);
-			if ((adc < 70) && (selectedAutoRange > DMM_RANGE_2kOhm)) {
+			if ((adc < 230) && (selectedAutoRange > DMM_RANGE_2kOhm)) {
 				selectedAutoRange--;
-			} else if ((adc > 800) && (selectedAutoRange < DMM_RANGE_20MOhm)) {
+			} else if ((adc > 790) && (selectedAutoRange < DMM_RANGE_20MOhm)) {
 				selectedAutoRange++;
 			}
 			actualRange = selectedAutoRange;
 		}
 		DMM_SetRRange(actualRange);
-		if (adc > 900)
+		if (adc > 950)
 			outOfRange = 1;
 		switch (actualRange) {
 		case DMM_RANGE_20MOhm:
 			// needs to display an 'k' for kilo-Ohm
 			corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
+			corr_result /= 1000;
+			*unit++ = 'k';
 			break;
 		case DMM_RANGE_2MOhm:
 			// needs to display an 'k' for kilo-Ohm
 			corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
+			corr_result /= 1000;
+			*unit++ = 'k';
 			break;
 		case DMM_RANGE_200kOhm:
 			// needs to display an 'k' for kilo-Ohm
 			corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
+			corr_result /= 1000;
+			*unit++ = 'k';
 			break;
 		case DMM_RANGE_20kOhm:
 			corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
@@ -294,6 +308,10 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 			corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
 			break;
 		}
+		*unit++ = 'O';
+		*unit++ = 'h';
+		*unit++ = 'm';
+		*unit = 0;
 		break;
 	case DMM_MEASURE_CONT:
 		// TODO
@@ -305,7 +323,7 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 
 		//DMM_SetCRange(DMM_RANGE_CONTIN);
 		DMM_SetRRange(DMM_RANGE_2kOhm);
-		if (adc > 900)
+		if (adc > 950)
 			outOfRange = 1;
 		corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
 		if (corr_result < 20) {
@@ -317,6 +335,10 @@ uint8_t meter_TakeMeasurement(int32_t *res, uint8_t measurement, uint8_t range) 
 			time.beep = 0;
 			Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
 		}
+		*unit++ = 'O';
+		*unit++ = 'h';
+		*unit++ = 'm';
+		*unit = 0;
 		break;
 	}
 
