@@ -35,6 +35,11 @@ uint16_t ADC_get(uint8_t channel) {
 	}
 	return ADCW ;
 }
+
+void DMM_SetDefault(void){
+	DMM_SetURange(DMM_RANGE_500V);
+}
+
 void DMM_SetURange(uint8_t uRange) {
 	// Select range
 	switch (uRange) {

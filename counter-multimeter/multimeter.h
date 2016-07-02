@@ -71,6 +71,8 @@
 
 uint8_t selectedAutoRange;
 
+void DMM_SetDefault(void);
+
 /**
  * \brief Switches into voltage measurement mode
  *

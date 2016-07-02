@@ -221,6 +221,7 @@ void gui_TakeMeasurement(void) {
 						DMM_RANGE_AUTO);
 		break;
 	default:
+		gui.measurementValid = 0;
 		gui.measurementResult = 0;
 		break;
 	}

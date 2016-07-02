@@ -70,6 +70,10 @@ int main(void) {
 		if (gui.selectedEntry < GUI_NUM_MEASUREMENT_ENTRIES
 				&& gui.measurementActive) {
 			gui_TakeMeasurement();
+		} else {
+			time.beep = 0;
+			DMM_SetDefault();
+			Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
 		}
 		gui_HandleUserInput();
 	}
