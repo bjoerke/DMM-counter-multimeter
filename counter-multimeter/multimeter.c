@@ -147,7 +147,8 @@ void DMM_SetCRange(uint8_t rRange) {
 //##		- optimize the Auto-R-Mode							##
 // ###############################################################
 
-uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement, uint8_t range) {
+uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
+		uint8_t range) {
 	uint8_t outOfRange = 0;
 	uint16_t adc;
 	double result;
@@ -254,7 +255,7 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement, uin
 			*unit++ = 'm';
 			break;
 		case DMM_RANGE_200uA:
-			corr_result = (result / (I_R_REF_200uA/1000)) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
+			corr_result = (result / (I_R_REF_200uA / 1000)) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
 			corr_result *= 10000;// return the result in uA + 1 position after the decimal point
 			*unit++ = 'u';
 			break;
@@ -341,10 +342,17 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement, uin
 		*unit = 0;
 		break;
 	}
-
-	if (!(PINB & (1 << PINB2))) {
-		corr_result = -corr_result;
+	if (measurement == DMM_MEASURE_I_DC || measurement == DMM_MEASURE_U_DC) {
+		// invert for negative results
+		if (!(PINB & (1 << PINB2))) {
+			corr_result = -corr_result;
+		}
+	} else if (measurement == DMM_MEASURE_I_AC
+			|| measurement == DMM_MEASURE_U_AC) {
+		// include form factor for sinusoid signal
+		corr_result *= 1.11;
 	}
+
 	*res = (int32_t) corr_result;
 	return outOfRange;
 }
