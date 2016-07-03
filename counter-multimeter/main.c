@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <avr/pgmspace.h>
 
-#include "includes/uart.h"
+#include "uartProtocol.h"
 #include "includes/lcd.h"
 #include "includes/twi.h"
 #include "multimeter.h"
@@ -16,10 +16,6 @@
 #include "counterHAL.h"
 #include "gui.h"
 #include "joy.h"
-
-void uart_rx_listener(char c) {
-	UART_PutChar(c);
-}
 
 int main(void) {
 	//// set PB0-PB3 as output
@@ -37,15 +33,13 @@ int main(void) {
 	PORTB |= (1 << PINB2);
 
 	LCD_Init();
-	UART_Init();
+	uartProtocol_Init();
 
 	time_Init();
 	joy_Init();
 	shift_Init();
 	counter_Init();
 	ADC_Init();
-
-	UART_SetDataReceivedListener(uart_rx_listener);
 
 	Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
 
@@ -64,6 +58,16 @@ int main(void) {
 	// Enable interrupts:
 	sei();
 
+   /* UART protocol ussage
+	while(1) {
+		request* request =
+		uartProtocol_WaitRequest();
+		LCD_PutChar('#');
+		LCD_Update();
+		response response;
+		uartProtocol_SendResponse(&response);
+	} */
+	
 	while (1) {
 		gui_DisplayMainMenu();
 		time_Waitms(100);

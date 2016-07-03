@@ -58,27 +58,27 @@ bool serial_open(const char* port)
     return true;
 }
 
-unsigned int serial_write(const void* data, const unsigned int length)
+bool serial_write(const void* data, const unsigned int length)
 {
     // Send specified text (remaining command line arguments)
     DWORD bytes_written;
     if(!WriteFile(hSerial, data, length, &bytes_written, NULL))
     {
         CloseHandle(hSerial);
-        return 0;
+        return false;
     }
-    return bytes_written;
+    return bytes_written == length;
 }
 
-unsigned int serial_read(void* buffer, const unsigned int length)
+bool serial_read(void* buffer, const unsigned int length)
 {
     DWORD bytes_read;
     if(!ReadFile(hSerial, buffer, length, &bytes_read, NULL))
     {
         CloseHandle(hSerial);
-        return 0;
+        return false;
     }
-    return bytes_read;
+    return bytes_read == length;
 }
 
 bool serial_close()
