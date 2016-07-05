@@ -160,7 +160,6 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
 	while (counter_GetRefOvfs() != overflows)
 		;
 	// enable compare match pin functionality
-	// start hardware signal counter as soon as gate opens
 	TCCR1A &= ~(1 << COM1B0);
 	// set gate status and enable 'gate opened interrupt'
 	counter.refGateStatus = CNT_GATE_CLOSING;
@@ -173,7 +172,7 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
 	TCCR1A &= ~((1 << COM1B1) | (1 << COM1B0));
 	TIMSK1 &= ~(1 << OCIE1B);
 
-	// at this point OC0B (PB4) has been high for exactly ticks*(1/2MHz) seconds
+	// at this point OC1B (PD4) has been high for exactly ticks*(1/2MHz) seconds
 	/*****************************************************************
 	 * Step 3:  Calculate counted signal impulses
 	 ****************************************************************/
@@ -211,6 +210,8 @@ uint32_t counter_SignalPulsesTime(uint32_t edges, uint16_t timeout) {
 		return timeDiffEdgeps;
 	}
 #else
+	// enable counter chip
+	PORTD |= (1<<PD4);
 	// setup input capture functionality at ICP3
 	// start with rising edge
 	TCCR1B |= (1 << ICES1);
@@ -232,6 +233,8 @@ uint32_t counter_SignalPulsesTime(uint32_t edges, uint16_t timeout) {
 	while ((counter.sigGateStatus != CNT_GATE_CLOSED)
 			&& (starttime + timeout > time_Getms()))
 		;
+	// disable counter chip
+	PORTD &= ~(1<<PD4);
 	TIMSK1 &= ~(1 << ICIE1);
 	if (counter.sigGateStatus != CNT_GATE_CLOSED) {
 		// timeout has occured
