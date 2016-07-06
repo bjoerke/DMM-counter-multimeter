@@ -5,9 +5,13 @@
 
 int main(int argc, char *argv[])
 {
+    if(argc < 2)
+    {
+        printf("Please pass the serial port via command line.\n Example: \"uart-tester.exe COM3\" or \"./uart-tester /dev/tty/USB0\"");
+        return -1;
+    }
     /** Open serial port **/
-    //if(!serial_open("COM3"))
-    if(!serial_open("/dev/ttyUSB0"))
+    if(!serial_open(argv[1]))
     {
         fprintf(stderr, "Cannot open");
         return -1;
