@@ -63,7 +63,6 @@ typedef struct  __attribute__((packed))
 		uint8_t range;
 		uint32_t value;
 	}duty_cycle;
-	uint8_t _reserved[5];
 } response;
 
 /**

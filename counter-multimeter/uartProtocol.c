@@ -29,7 +29,7 @@ static volatile bool rx_ready;
 static void reset_rx()
 {
 	index = UP_INDEX_PREAMBLE;
-	checksum = UP_PREAMBLE ^ UP_ADDR_MULTIMETER;
+	checksum = 0;
 	rx_ready = false;
 }
 
@@ -53,6 +53,8 @@ static void uart_rx_listener(char c) {
 		case UP_INDEX_CHECKSUM:
 			if(c != checksum)
 			{
+				LCD_PutString("\n\rcheck!!!!");
+				LCD_Update();
 				reset_rx();
 				return;
 			}
@@ -97,7 +99,7 @@ request* uartProtocol_WaitRequest(void)
 
 void uartProtocol_SendResponse(response* resp)
 {
-	uint8_t _checksum = UP_PREAMBLE ^ UP_ADDR_MULTIMETER;
+	uint8_t _checksum = 0;
 	UART_PutChar(UP_PREAMBLE);
 	UART_PutChar(UP_ADDR_MULTIMETER);
 	for(int i=0; i<sizeof(response); i++)

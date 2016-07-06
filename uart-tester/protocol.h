@@ -13,7 +13,6 @@ typedef struct __attribute__((packed))
 	uint8_t resistance;
 	uint8_t frequency;
 	uint8_t duty_cycle;
-	uint8_t _reserved;
 } request;
 
 #define UP_DONT_MEASURE 0x00
@@ -56,12 +55,13 @@ typedef struct  __attribute__((packed))
 		uint8_t range;
 		uint32_t value;
 	}duty_cycle;
-	uint8_t _reserved[5];
 } response;
 
 
 bool protocol_send_request(request*);
 
 bool protocol_wait_response(response*);
+
+void protocol_print_response(response*);
 
 #endif // _PROTO_H_

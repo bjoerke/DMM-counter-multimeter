@@ -10,4 +10,5 @@ uart-tester/bin/*
 uart-tester/obj/*
 uart-tester/uart-tester.cbp
 uart-tester/uart-tester.depend
+uart-tester/uart-tester.layout
 .metadata

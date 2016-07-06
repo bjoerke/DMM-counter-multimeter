@@ -21,7 +21,6 @@ int main()
         .resistance = UP_MEASURE_RANGE_AUTO,
         .frequency = UP_MEASURE_RANGE_AUTO,
         .duty_cycle = UP_MEASURE_RANGE_AUTO,
-        ._reserved = 0
     };
     protocol_send_request(&request);
 
@@ -32,6 +31,7 @@ int main()
         fprintf(stderr, "Response error!");
         return -1;
     }
+    protocol_print_response(&response);
 
     /** close serial port **/
     if(!serial_close())

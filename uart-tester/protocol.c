@@ -26,7 +26,7 @@ bool protocol_send_request(request* requ)
     {
         buffer.data[i] = 0;
     }
-    buffer.checksum = UP_PREAMBLE ^ UP_ADDRESS;
+    buffer.checksum = 0;
     for(i=0; i<sizeof(request); i++)
     {
         buffer.checksum ^= buffer.data[i];
@@ -39,15 +39,13 @@ bool protocol_wait_response(response* resp)
 {
     if(!serial_read(&buffer, sizeof(buffer)))
     {
-        fprintf(stderr, "A");
         return false;
     }
     if(buffer.preamble != UP_PREAMBLE || buffer.address != UP_ADDRESS || buffer.cr != 0x0d)
     {
-        fprintf(stderr, "B");
         return false;
     }
-    uint8_t checksum = UP_ADDRESS ^ UP_PREAMBLE;
+    uint8_t checksum = 0;
     int i;
     for(i=0; i<UP_PAYLOAD_LEN; i++)
     {
@@ -55,9 +53,26 @@ bool protocol_wait_response(response* resp)
     }
     if(buffer.checksum != checksum)
     {
-        fprintf(stderr, "C");
         return false;
     }
     memcpy(buffer.data, resp, sizeof(response));
     return true;
+}
+
+void protocol_print_response(response* r)
+{
+    if(r->direct_voltage.range != UP_DONT_MEASURE)
+        printf("Direct voltage: %d\n", r->direct_voltage.value);
+    if(r->direct_current.range != UP_DONT_MEASURE)
+        printf("Direct current: %d\n", r->direct_current.value);
+    if(r->alternating_voltage.range != UP_DONT_MEASURE)
+        printf("Alternating voltage: %d\n", r->alternating_voltage.value);
+    if(r->alternating_current.range != UP_DONT_MEASURE)
+        printf("Alternating current: %d\n", r->alternating_current.value);
+    if(r->resistance.range != UP_DONT_MEASURE)
+        printf("Resistance: %d\n", r->resistance.value);
+    if(r->frequency.range != UP_DONT_MEASURE)
+        printf("Frequency: %d\n", r->frequency.value);
+    if(r->duty_cycle.range != UP_DONT_MEASURE)
+        printf("Duty Cycle: %d\n", r->duty_cycle.value);
 }
