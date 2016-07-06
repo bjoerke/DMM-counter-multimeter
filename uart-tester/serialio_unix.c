@@ -1,4 +1,4 @@
-//#if defined(linux) || defined(__LINUX__) || defined(unix) || defined(__UNIX__)
+#if defined(linux) || defined(__LINUX__) || defined(unix) || defined(__UNIX__)
 
 #include <fcntl.h>
 #include <termios.h>
@@ -92,4 +92,4 @@ bool serial_close()
     return true;
 }
 
-//#endif // defined
+#endif // defined
