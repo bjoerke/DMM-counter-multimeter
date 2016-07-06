@@ -3,10 +3,11 @@
 #include "serialio.h"
 #include "protocol.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     /** Open serial port **/
-    if(!serial_open("COM3"))
+    //if(!serial_open("COM3"))
+    if(!serial_open("/dev/ttyUSB0"))
     {
         fprintf(stderr, "Cannot open");
         return -1;
