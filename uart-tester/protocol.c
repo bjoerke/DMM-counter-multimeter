@@ -55,24 +55,24 @@ bool protocol_wait_response(response* resp)
     {
         return false;
     }
-    memcpy(buffer.data, resp, sizeof(response));
+    memcpy(resp, buffer.data, sizeof(response));
     return true;
 }
 
 void protocol_print_response(response* r)
 {
     if(r->direct_voltage.range != UP_DONT_MEASURE)
-        printf("Direct voltage: %d\n", r->direct_voltage.value);
+        printf("Direct voltage: 0x%X\n", r->direct_voltage.value);
     if(r->direct_current.range != UP_DONT_MEASURE)
-        printf("Direct current: %d\n", r->direct_current.value);
+        printf("Direct current: 0x%X\n", r->direct_current.value);
     if(r->alternating_voltage.range != UP_DONT_MEASURE)
-        printf("Alternating voltage: %d\n", r->alternating_voltage.value);
+        printf("Alternating voltage: 0x%X\n", r->alternating_voltage.value);
     if(r->alternating_current.range != UP_DONT_MEASURE)
-        printf("Alternating current: %d\n", r->alternating_current.value);
+        printf("Alternating current: 0x%X\n", r->alternating_current.value);
     if(r->resistance.range != UP_DONT_MEASURE)
-        printf("Resistance: %d\n", r->resistance.value);
+        printf("Resistance: 0x%X\n", r->resistance.value);
     if(r->frequency.range != UP_DONT_MEASURE)
-        printf("Frequency: %d\n", r->frequency.value);
+        printf("Frequency: 0x%X\n", r->frequency.value);
     if(r->duty_cycle.range != UP_DONT_MEASURE)
-        printf("Duty Cycle: %d\n", r->duty_cycle.value);
+        printf("Duty Cycle: 0x%X\n", r->duty_cycle.value);
 }

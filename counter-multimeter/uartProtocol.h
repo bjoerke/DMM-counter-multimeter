@@ -32,37 +32,37 @@ typedef struct  __attribute__((packed))
 	struct __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}direct_voltage;
 	struct __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}direct_current;
 	struct __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}alternating_voltage;
 	struct  __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}alternating_current;
 	struct  __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}resistance;
 	struct  __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}frequency;
 	struct  __attribute__((packed))
 	{
 		uint8_t range;
-		uint32_t value;
+		int32_t value;
 	}duty_cycle;
 } response;
 
