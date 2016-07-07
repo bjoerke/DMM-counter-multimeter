@@ -75,10 +75,10 @@ bool serial_open(const char* port)
 }
 bool serial_write(const void* data, const unsigned int length)
 {
-    write(fd, data, length);
+    int written = write(fd, data, length);
     tcdrain(fd);
     sleep(1);  //TODO: tcdrain does not work?!
-    return true;
+    return written == length;
 }
 
 bool serial_read(void* buffer, const unsigned int length)
