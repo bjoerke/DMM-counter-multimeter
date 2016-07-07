@@ -9,11 +9,11 @@ const uint8_t menuEntryRanges[GUI_NUM_MENU_ENTRIES] = { 5, 5, 6, 6, 6, 1, 7, 2,
 		1, 1 };
 
 // number of displayed digits for the different measurements
-const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 5, 5, 4, 4, 5,
+const uint8_t menuDisplayDigits[GUI_NUM_MEASUREMENT_ENTRIES] = { 6, 6, 4, 4, 6,
 		4, 9, 3 };
 
 // dot-position of the different measurements (0 = no dot)
-const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 2, 2, 1, 1, 0, 0,
+const uint8_t menuDisplayDots[GUI_NUM_MEASUREMENT_ENTRIES] = { 3, 3, 1, 1, 1, 0,
 		0, 1 };
 
 const char PROGMEM rangeNames[GUI_NUM_MENU_ENTRIES][GUI_MAX_RANGES_PER_ENTRY][GUI_MAX_RANGE_NAME_LENGTH
@@ -218,12 +218,15 @@ void gui_TakeMeasurement(void) {
 	case GUI_MEASURE_CURRENT_DC:
 	case GUI_MEASURE_CURRENT_AC:
 	case GUI_MEASURE_RESISTANCE:
-	case GUI_MEASURE_CONTINUITY:
+	case GUI_MEASURE_CONTINUITY: {
+		uint32_t div;
 		gui.measurementValid = !meter_TakeMeasurement(&gui.measurementResult,
-				gui.measurementUnit, gui.selectedEntry,
+				gui.measurementUnit, &div, gui.selectedEntry,
 				gui.selectedRanges[gui.selectedEntry] > 0 ?
 						(gui.selectedRanges[gui.selectedEntry]) :
 						DMM_RANGE_AUTO);
+		gui.measurementResult /= div;
+	}
 		break;
 	default:
 		gui.measurementValid = 0;
@@ -349,10 +352,11 @@ void gui_UartProtocol(void) {
 			response response;
 			memset(&response, 0, sizeof(response));
 			char dummy[6];
+			uint32_t div;
 			// measure requested data
 			if (request->direct_voltage) {
 				meter_TakeMeasurement(&response.direct_voltage.value, dummy,
-						DMM_MEASURE_U_DC, request->direct_voltage);
+						&div, DMM_MEASURE_U_DC, request->direct_voltage);
 				if (request->direct_voltage == 0xFF)
 					response.direct_voltage.range = selectedAutoRange;
 				else
@@ -361,7 +365,8 @@ void gui_UartProtocol(void) {
 				range = request->direct_voltage;
 			} else if (request->alternating_voltage) {
 				meter_TakeMeasurement(&response.alternating_voltage.value,
-						dummy, DMM_MEASURE_U_AC, request->alternating_voltage);
+						dummy, &div, DMM_MEASURE_U_AC,
+						request->alternating_voltage);
 				if (request->alternating_voltage == 0xFF)
 					response.alternating_voltage.range = selectedAutoRange;
 				else
@@ -371,7 +376,7 @@ void gui_UartProtocol(void) {
 				range = request->alternating_voltage;
 			} else if (request->direct_current) {
 				meter_TakeMeasurement(&response.direct_current.value, dummy,
-						DMM_MEASURE_I_DC, request->direct_current);
+						&div, DMM_MEASURE_I_DC, request->direct_current);
 				if (request->direct_current == 0xFF)
 					response.direct_current.range = selectedAutoRange;
 				else
@@ -380,7 +385,8 @@ void gui_UartProtocol(void) {
 				range = request->direct_current;
 			} else if (request->alternating_current) {
 				meter_TakeMeasurement(&response.alternating_current.value,
-						dummy, DMM_MEASURE_I_AC, request->alternating_current);
+						dummy, &div, DMM_MEASURE_I_AC,
+						request->alternating_current);
 				if (request->alternating_current == 0xFF)
 					response.alternating_current.range = selectedAutoRange;
 				else
@@ -389,7 +395,7 @@ void gui_UartProtocol(void) {
 				measurement = GUI_MEASURE_CURRENT_AC;
 				range = request->alternating_current;
 			} else if (request->resistance) {
-				meter_TakeMeasurement(&response.resistance.value, dummy,
+				meter_TakeMeasurement(&response.resistance.value, dummy, &div,
 						DMM_MEASURE_R, request->resistance);
 				if (request->resistance == 0xFF)
 					response.resistance.range = selectedAutoRange;

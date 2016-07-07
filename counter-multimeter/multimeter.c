@@ -159,7 +159,7 @@ void DMM_SetCRange(uint8_t rRange) {
 //##		- optimize the Auto-R-Mode							##
 // ###############################################################
 
-uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
+uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint32_t *decPoint, uint8_t measurement,
 		uint8_t range) {
 	uint8_t outOfRange = 0;
 	uint16_t adc;
@@ -221,7 +221,8 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
 			corr_result = ((result / U_R_REF_2V) * U_R_SUM) / 15;// calculate the correct input-voltage (divided by 15 to compensate the amplification)
 			break;
 		}
-		corr_result *= 100;	// Multiply by 100 to return as well 2 positions after the decimal point
+		corr_result *= 1000;	// Multiply by 1000 to return as well 3 positions after the decimal point
+		*decPoint = 1;
 		*unit++ = 'V';
 		*unit = 0;
 		break;
@@ -248,30 +249,31 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
 			outOfRange = 1;
 		switch (actualRange) {
 		case DMM_RANGE_10A:
-			corr_result = ((result / U_R_REF_500V) * U_R_SUM) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
-			corr_result *= 10;// return the result + 1 position after the decimal point
+			corr_result = (result / I_R_REF_10A) / 15;	// calculate the correct input-voltage (divided by 15 to compensate the amplification)
+			*decPoint = 1000000;
 			break;
 		case DMM_RANGE_200mA:
 			corr_result = (result / I_R_REF_200mA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			*decPoint = 1000;
 			*unit++ = 'm';
 			break;
 		case DMM_RANGE_20mA:
 			corr_result = (result / I_R_REF_20mA) / 15;	// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			*decPoint = 1000;
 			*unit++ = 'm';
 			break;
 		case DMM_RANGE_2mA:
 			corr_result = (result / I_R_REF_2mA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;// return the result in mA + 1 position after the decimal point
+			*decPoint = 1000;
 			*unit++ = 'm';
 			break;
 		case DMM_RANGE_200uA:
-			corr_result = (result / (I_R_REF_200uA / 1000)) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
-			corr_result *= 10000;// return the result in uA + 1 position after the decimal point
+			corr_result = (result / I_R_REF_200uA) / 15;// calculate the correct input-current (divided by 15 to compensate the amplification)
+			*decPoint = 1;
 			*unit++ = 'u';
 			break;
 		}
+		corr_result *= 10000000; // LSB is 0.1uA
 		*unit++ = 'A';
 		*unit = 0;
 		break;
@@ -297,30 +299,30 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
 			outOfRange = 1;
 		switch (actualRange) {
 		case DMM_RANGE_20MOhm:
-			// needs to display an 'k' for kilo-Ohm
 			corr_result = (result * R_R_REF_20MOhm) / (R_U_REF - result);
-			corr_result /= 1000;
+			*decPoint = 10000;
 			*unit++ = 'k';
 			break;
 		case DMM_RANGE_2MOhm:
-			// needs to display an 'k' for kilo-Ohm
 			corr_result = (result * R_R_REF_2MOhm) / (R_U_REF - result);
-			corr_result /= 1000;
+			*decPoint = 10000;
 			*unit++ = 'k';
 			break;
 		case DMM_RANGE_200kOhm:
-			// needs to display an 'k' for kilo-Ohm
 			corr_result = (result * R_R_REF_200kOhm) / (R_U_REF - result);
-			corr_result /= 1000;
+			*decPoint = 10000;
 			*unit++ = 'k';
 			break;
 		case DMM_RANGE_20kOhm:
 			corr_result = (result * R_R_REF_20kOhm) / (R_U_REF - result);
+			*decPoint = 10;
 			break;
 		case DMM_RANGE_2kOhm:
 			corr_result = (result * R_R_REF_2kOhm) / (R_U_REF - result);
+			*decPoint = 10;
 			break;
 		}
+		corr_result *= 100; // LSB is 10mOhm
 		*unit++ = 'O';
 		*unit++ = 'h';
 		*unit++ = 'm';
@@ -348,6 +350,7 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
 			time.beep = 0;
 			Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
 		}
+		*decPoint = 1;
 		*unit++ = 'O';
 		*unit++ = 'h';
 		*unit++ = 'm';

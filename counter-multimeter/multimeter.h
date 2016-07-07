@@ -14,7 +14,6 @@
 #define DMM_MEASURE_R		0x04
 #define DMM_MEASURE_CONT	0x05
 
-
 #define DMM_RANGE_NONE		0x00
 
 #define DMM_RANGE_AUTO		0xFF
@@ -110,6 +109,7 @@ void DMM_SetCRange(uint8_t rRange);
  *
  * \return 0 on success, 1 if out of range
  */
-uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement, uint8_t range);
+uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint32_t *decPoint,
+		uint8_t measurement, uint8_t range);
 
 #endif
