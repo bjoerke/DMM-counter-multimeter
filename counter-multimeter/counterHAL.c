@@ -106,9 +106,6 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
 #else
 	// reset impulse counter
 	shift_ClearAndUpdate(CNT_RESET_SHIFT);
-	// this is interrupt-save because hardware counter is stopped at the moment
-	TCNT0 = 0;
-	counter.signalOverflows = 0;
 	// enable impulse counter
 	shift_SetAndUpdate(CNT_RESET_SHIFT);
 	/*****************************************************************
@@ -150,6 +147,9 @@ uint32_t counter_MeasureRefGate(uint32_t ticks) {
 	counter.refGateStatus = CNT_GATE_OPENING;
 	TIFR1 |= (1 << OCF1B);
 	TIMSK1 |= (1 << OCIE1B);
+	// this is interrupt-save because hardware counter is stopped at the moment
+	TCNT0 = 0;
+	counter.signalOverflows = 0;
 	// wait for gate to open
 	while (counter.refGateStatus != CNT_GATE_OPEN)
 		;
