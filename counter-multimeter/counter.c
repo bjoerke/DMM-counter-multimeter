@@ -21,7 +21,6 @@ uint32_t cnt_MeasureFrequency(uint8_t precision, uint32_t estimate) {
 		}
 		// take measurement
 		uint32_t pulses = counter_MeasureRefGate(CNT_GATE_MS(ms));
-//		UART_PutString("ms: ");
 //		UART_PutLongInteger(ms);
 //		UART_PutString(" pulses: ");
 //		UART_PutLongInteger(pulses);
@@ -238,12 +237,12 @@ uint32_t cnt_TakeMeasurement(uint8_t *range) {
 //	UART_PutLongInteger(estimate);
 //	UART_PutChar('\n');
 	// we have a range -> get measurement
-	if (range == COUNTER_RANGE_AUTO) {
+	if (*range == COUNTER_RANGE_AUTO) {
 		measurement = cnt_MeasureFrequency(COUNTER_DEF_PRECISION,
 				estimate / Prescaler) * Prescaler;
 	} else {
 		// manual range
-		if (range == COUNTER_RANGE_4MHz_TTL) {
+		if (*range == COUNTER_RANGE_4MHz_TTL) {
 			// no prescaler -> just measure frequency
 			measurement = cnt_MeasureFrequency(COUNTER_DEF_PRECISION,
 					estimateTTL);
