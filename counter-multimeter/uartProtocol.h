@@ -11,11 +11,8 @@
 
 #include <stdint.h>
 
-#define UP_ADDRESS 0x55AA
-
 typedef struct __attribute__((packed))
 {
-	uint16_t address;
 	uint8_t direct_voltage;
 	uint8_t direct_current;
 	uint8_t alternating_voltage;
@@ -24,7 +21,6 @@ typedef struct __attribute__((packed))
 	uint8_t frequency;
 	uint8_t duty_cycle;
 	uint8_t _reserved;
-	uint8_t checksum;
 } request;
 
 #define UP_DONT_MEASURE 0x00
@@ -32,7 +28,6 @@ typedef struct __attribute__((packed))
 
 typedef struct  __attribute__((packed))
 {
-	uint16_t address;
 	struct __attribute__((packed))
 	{
 		uint8_t range;
@@ -68,9 +63,23 @@ typedef struct  __attribute__((packed))
 		uint8_t range;
 		uint32_t value;
 	}duty_cycle;
-	uint8_t _reserved[5];
-	uint8_t checksum;
 } response;
 
+/**
+ * Initializes the UART to be used for the protocol
+ */
+void uartProtocol_Init(void);
+
+/** 
+ * Waits for a request
+ * @return the request received
+ */
+request* uartProtocol_WaitRequest(void);
+
+/** 
+ * Sends a response
+ * @param response response to be send
+ */
+void uartProtocol_SendResponse(response* response);
 
 #endif

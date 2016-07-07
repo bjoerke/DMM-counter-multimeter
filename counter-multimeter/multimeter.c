@@ -25,15 +25,22 @@ void ADC_Init(void) {
 }
 
 uint16_t ADC_get(uint8_t channel) {
+	uint8_t cntr;
+	uint16_t sum = 0;
 	ADMUX &= ~0x1f;
 	ADMUX |= channel;
 
-	ADCSRA |= (1 << ADSC);						// ADSC = ADC Start Conversion
-
-	while (ADCSRA & (1 << ADSC))	// Waiting for completion of the conversion.
+	for(cntr = 0; cntr < 30; cntr++)				// loop for collecting 30 values of the adc-conversion
 	{
+		ADCSRA |= (1 << ADSC);						// ADSC = ADC Start Conversion
+
+		while (ADCSRA & (1 << ADSC))				// Waiting for completion of the conversion.
+		{
+		}
+		sum += ADCW;
 	}
-	return ADCW ;
+	sum /= cntr;									// calculate the mean of 30 times adc-conversion
+	return sum;
 }
 
 void DMM_SetDefault(void){
@@ -269,9 +276,9 @@ uint8_t meter_TakeMeasurement(int32_t *res, char *unit, uint8_t measurement,
 		*unit = 0;
 		break;
 	case DMM_MEASURE_R:
-		// ############################
+		// ###############################
 		// ## Check for Resistance Mode ##
-		// ############################
+		// ###############################
 		actualRange = range;
 		if (range == DMM_RANGE_AUTO) {
 			if (selectedAutoRange > 5 || selectedAutoRange < 1)

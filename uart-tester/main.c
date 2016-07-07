@@ -3,18 +3,22 @@
 #include "serialio.h"
 #include "protocol.h"
 
-int main()
+int main(int argc, char *argv[])
 {
+    if(argc < 2)
+    {
+        printf("Please pass the serial port via command line.\n Example: \"uart-tester.exe COM3\" or \"./uart-tester /dev/tty/USB0\"");
+        return -1;
+    }
     /** Open serial port **/
-    if(!serial_open("COM3"))
+    if(!serial_open(argv[1]))
     {
         fprintf(stderr, "Cannot open");
         return -1;
     }
 
-    /** create request **/
+    /** send request **/
     request request = {
-        .address = UP_ADDRESS,
         .direct_voltage = UP_MEASURE_RANGE_AUTO,
         .direct_current = UP_MEASURE_RANGE_AUTO,
         .alternating_voltage = UP_MEASURE_RANGE_AUTO,
@@ -22,21 +26,17 @@ int main()
         .resistance = UP_MEASURE_RANGE_AUTO,
         .frequency = UP_MEASURE_RANGE_AUTO,
         .duty_cycle = UP_MEASURE_RANGE_AUTO,
-        ._reserved = 0
     };
-	protocol_calc_checksum(&request);
-
-	/** send request **/
-    serial_write(&request, sizeof(request));
+    protocol_send_request(&request);
 
     /** read response **/
     response response;
-    unsigned int bytes_read = serial_read(&response, sizeof(response));
-    if(bytes_read < sizeof(response))
+    if(!protocol_wait_response(&response))
     {
-        fprintf(stderr, "cannot read response");
+        fprintf(stderr, "Response error!");
         return -1;
     }
+    protocol_print_response(&response);
 
     /** close serial port **/
     if(!serial_close())

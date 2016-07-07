@@ -6,6 +6,9 @@ counter-multimeter/Release/
 counter-multimeter/counter-multimeter.atsln
 counter-multimeter/counter-multimeter.componentinfo.xml
 counter-multimeter/counter-multimeter.cproj
-checksum-generator/xor-checksum
-checksum-generator/xor_checksum.o
+uart-tester/bin/*
+uart-tester/obj/*
+uart-tester/uart-tester.cbp
+uart-tester/uart-tester.depend
+uart-tester/uart-tester.layout
 .metadata

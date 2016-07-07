@@ -59,8 +59,13 @@ UART_Init (void)
   uint8_t sreg = SREG;
   cli();
 
-  // Set Baudrate according to datasheet (16MHz -> 9600 Baud -> 103)
-  UBRRn = 103;
+  
+  #ifdef DEBUG
+   // Set Baudrate according to datasheet (16MHz -> 9600 Baud -> 103)
+    UBRRn = 103;
+  #else
+	UBRRn = 1;  //0.5M Baud rate
+  #endif
 
   // Enable RX, TX and RX Complete Interrupt
   UCSRnB = (1 << RXENn)|(1 << TXENn)|(1 << RXCIEn);

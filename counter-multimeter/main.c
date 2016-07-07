@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <avr/pgmspace.h>
 
-#include "includes/uart.h"
+#include "uartProtocol.h"
 #include "includes/lcd.h"
 #include "includes/twi.h"
 #include "multimeter.h"
@@ -16,10 +16,6 @@
 #include "counterHAL.h"
 #include "gui.h"
 #include "joy.h"
-
-void uart_rx_listener(char c) {
-	UART_PutChar(c);
-}
 
 int main(void) {
 	//// set PB0-PB3 as output
@@ -37,7 +33,7 @@ int main(void) {
 	PORTB |= (1 << PINB2);
 
 	LCD_Init();
-	UART_Init();
+	uartProtocol_Init();
 
 	time_Init();
 	joy_Init();
@@ -45,25 +41,39 @@ int main(void) {
 	counter_Init();
 	ADC_Init();
 
-	UART_SetDataReceivedListener(uart_rx_listener);
-
 	Backlight_LED(BL_BLUE_ON | BL_GREEN_ON | BL_RED_ON);
 
 	LCD_Clear();
-	LCD_PutString_P(PSTR("	                   \r\n"));
+/*	LCD_PutString_P(PSTR("	                   \r\n"));
 	LCD_PutString_P(PSTR("	                   \r\n"));
 	LCD_PutString_P(PSTR("    Willkommen zur   \r\n"));
 	LCD_PutString_P(PSTR("     Demo-Version    \r\n"));
 	LCD_PutString_P(PSTR("         des         \r\n"));
 	LCD_PutString_P(PSTR("    Counter-Meters   \r\n"));
 	LCD_PutString_P(PSTR("                     \r\n"));
-	LCD_PutString_P(PSTR("                     \r\n"));
+	LCD_PutString_P(PSTR("                     \r\n")); */
 	LCD_Update();
-	time_Waitms(3000);
+	//time_Waitms(3000);
 
 	// Enable interrupts:
 	sei();
 
+/*
+    //UART protocol ussage
+	uint8_t i=0;
+	while(1) {
+		request* request = 
+		uartProtocol_WaitRequest();
+		LCD_PutString("#");
+		LCD_Update();
+		response response;
+		response.direct_voltage.range = i;
+		response.direct_voltage.value = 0;
+		uartProtocol_SendResponse(&response);
+		i++;
+	} 
+*/
+	
 	while (1) {
 		gui_DisplayMainMenu();
 		time_Waitms(100);

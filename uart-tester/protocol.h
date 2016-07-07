@@ -2,12 +2,10 @@
 #define _PROTO_H_
 
 #include <stdint.h>
-
-#define UP_ADDRESS 0x55AA
+#include <stdbool.h>
 
 typedef struct __attribute__((packed))
 {
-	uint16_t address;
 	uint8_t direct_voltage;
 	uint8_t direct_current;
 	uint8_t alternating_voltage;
@@ -15,8 +13,6 @@ typedef struct __attribute__((packed))
 	uint8_t resistance;
 	uint8_t frequency;
 	uint8_t duty_cycle;
-	uint8_t _reserved;
-	uint8_t checksum;
 } request;
 
 #define UP_DONT_MEASURE 0x00
@@ -24,7 +20,6 @@ typedef struct __attribute__((packed))
 
 typedef struct  __attribute__((packed))
 {
-	uint16_t address;
 	struct __attribute__((packed))
 	{
 		uint8_t range;
@@ -60,10 +55,13 @@ typedef struct  __attribute__((packed))
 		uint8_t range;
 		uint32_t value;
 	}duty_cycle;
-	uint8_t _reserved[5];
-	uint8_t checksum;
 } response;
 
-void protocol_calc_checksum(request* r);
+
+bool protocol_send_request(request*);
+
+bool protocol_wait_response(response*);
+
+void protocol_print_response(response*);
 
 #endif // _PROTO_H_
