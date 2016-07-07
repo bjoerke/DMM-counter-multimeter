@@ -4,12 +4,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <avr/pgmspace.h>
+#include <string.h>
 
 #include "includes/lcd.h"
 #include "joy.h"
 #include "systime.h"
 #include "counter.h"
 #include "multimeter.h"
+#include "uartProtocol.h"
 
 #define GUI_MEASURE_VOLTAGE_DC			0
 #define GUI_MEASURE_VOLTAGE_AC			1
@@ -19,7 +21,7 @@
 #define GUI_MEASURE_CONTINUITY			5
 #define GUI_MEASURE_FREQUENCY			6
 #define GUI_MEASURE_DUTY				7
-
+#define GUI_UART_PROTOCOL				8
 #define GUI_ENTER_MENU					9
 
 /* maximum length of one menu entry. Shorter entries should be centered */
@@ -34,7 +36,7 @@
 /* maximum length of range/selection name. Shorter names should be centered */
 #define GUI_MAX_RANGE_NAME_LENGTH		11
 
-#define GUI_NUM_SETTINGS_ENTRIES		4
+#define GUI_NUM_SETTINGS_ENTRIES		1
 
 struct {
 	/* currently selected entry */
@@ -67,6 +69,8 @@ void gui_HandleUserInput(void);
 void gui_TakeMeasurement(void);
 
 void gui_SettingsMenu(void);
+
+void gui_UartProtocol(void);
 
 /**
  * \brief Creates a string from an unsigned integer

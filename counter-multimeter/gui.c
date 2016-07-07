@@ -179,21 +179,26 @@ void gui_HandleUserInput(void) {
 		if (gui.selectedEntry == GUI_ENTER_MENU) {
 			gui_SettingsMenu();
 		}
+		if (gui.selectedEntry == GUI_UART_PROTOCOL) {
+			gui_UartProtocol();
+		}
 	}
 }
 
 void gui_TakeMeasurement(void) {
 	switch (gui.selectedEntry) {
-	case GUI_MEASURE_FREQUENCY:
+	case GUI_MEASURE_FREQUENCY: {
 		// convert auto range to 0xFF and take measurement
-		gui.measurementResult = cnt_TakeMeasurement(
+		uint8_t range =
 				gui.selectedRanges[GUI_MEASURE_FREQUENCY] > 0 ?
 						gui.selectedRanges[GUI_MEASURE_FREQUENCY] :
-						COUNTER_RANGE_AUTO);
+						COUNTER_RANGE_AUTO;
+		gui.measurementResult = cnt_TakeMeasurement(&range);
 		gui.measurementValid = 1;
 		gui.measurementUnit[0] = 'H';
 		gui.measurementUnit[1] = 'z';
 		gui.measurementUnit[2] = 0;
+	}
 		break;
 	case GUI_MEASURE_DUTY:
 		if (gui.selectedRanges[GUI_MEASURE_DUTY] == 0) {
@@ -282,6 +287,137 @@ void gui_SettingsMenu(void) {
 				}
 				break;
 			}
+		}
+	} while (!joy_Pressed(JOY_LEFT));
+}
+
+void gui_UartProtocol(void) {
+	uint8_t communicationEstablished = 0;
+	uint8_t measurement = 0xff;
+	uint8_t range = 0x00;
+	do {
+		LCD_Clear();
+		LCD_GotoXY(0, 0);
+		LCD_PutString("Listening to UART...");
+		LCD_GotoXY(0, 2);
+		if (communicationEstablished) {
+			LCD_PutString("Com. established");
+			if (measurement != 0xff) {
+				LCD_GotoXY(0, 4);
+				switch (measurement) {
+				case GUI_MEASURE_VOLTAGE_DC:
+					LCD_PutString("Voltage DC");
+					break;
+				case GUI_MEASURE_VOLTAGE_AC:
+					LCD_PutString("Voltage AC");
+					break;
+				case GUI_MEASURE_CURRENT_DC:
+					LCD_PutString("Current DC");
+					break;
+				case GUI_MEASURE_CURRENT_AC:
+					LCD_PutString("Current AC");
+					break;
+				case GUI_MEASURE_RESISTANCE:
+					LCD_PutString("Resistance");
+					break;
+				case GUI_MEASURE_FREQUENCY:
+					LCD_PutString("Frequency");
+					break;
+				case GUI_MEASURE_DUTY:
+					LCD_PutString("Duty-Cycle");
+					break;
+				}
+				LCD_GotoXY(0, 5);
+				LCD_PutString("Range: ");
+				if (range != 0xff)
+					LCD_PutInteger(range);
+				else
+					LCD_PutString("Auto");
+			}
+		} else {
+			LCD_PutString("No UART communication");
+			measurement = 0xff;
+			range = 0x00;
+		}
+		LCD_Update();
+		request* request = uartProtocol_WaitRequest(2000);
+		if (!request) {
+			// timeout occurred
+			communicationEstablished = 0;
+			DMM_SetDefault();
+		} else {
+			response response;
+			memset(&response, 0, sizeof(response));
+			char dummy[6];
+			// measure requested data
+			if (request->direct_voltage) {
+				meter_TakeMeasurement(&response.direct_voltage.value, dummy,
+						DMM_MEASURE_U_DC, request->direct_voltage);
+				if (request->direct_voltage == 0xFF)
+					response.direct_voltage.range = selectedAutoRange;
+				else
+					response.direct_voltage.range = request->direct_voltage;
+				measurement = GUI_MEASURE_VOLTAGE_DC;
+				range = request->direct_voltage;
+			} else if (request->alternating_voltage) {
+				meter_TakeMeasurement(&response.alternating_voltage.value,
+						dummy, DMM_MEASURE_U_AC, request->alternating_voltage);
+				if (request->alternating_voltage == 0xFF)
+					response.alternating_voltage.range = selectedAutoRange;
+				else
+					response.alternating_voltage.range =
+							request->alternating_voltage;
+				measurement = GUI_MEASURE_VOLTAGE_AC;
+				range = request->alternating_voltage;
+			} else if (request->direct_current) {
+				meter_TakeMeasurement(&response.direct_current.value, dummy,
+						DMM_MEASURE_I_DC, request->direct_current);
+				if (request->direct_current == 0xFF)
+					response.direct_current.range = selectedAutoRange;
+				else
+					response.direct_current.range = request->direct_current;
+				measurement = GUI_MEASURE_CURRENT_DC;
+				range = request->direct_current;
+			} else if (request->alternating_current) {
+				meter_TakeMeasurement(&response.alternating_current.value,
+						dummy, DMM_MEASURE_I_AC, request->alternating_current);
+				if (request->alternating_current == 0xFF)
+					response.alternating_current.range = selectedAutoRange;
+				else
+					response.alternating_current.range =
+							request->alternating_current;
+				measurement = GUI_MEASURE_CURRENT_AC;
+				range = request->alternating_current;
+			} else if (request->resistance) {
+				meter_TakeMeasurement(&response.resistance.value, dummy,
+						DMM_MEASURE_R, request->resistance);
+				if (request->resistance == 0xFF)
+					response.resistance.range = selectedAutoRange;
+				else
+					response.resistance.range = request->resistance;
+				measurement = GUI_MEASURE_RESISTANCE;
+				range = request->resistance;
+			} else if (request->frequency) {
+				response.frequency.range = request->frequency;
+				response.frequency.value = cnt_TakeMeasurement(
+						&response.frequency.range);
+				measurement = GUI_MEASURE_FREQUENCY;
+				range = request->frequency;
+			} else if (request->duty_cycle) {
+				if (request->duty_cycle == 1) {
+					// measure duty cycle of TTL input
+					counter_SelectInput(CNT_IN_TTL, CNT_TTL_PRE_1);
+				} else {
+					// measure duty cycle of BNC input
+					counter_SelectInput(CNT_IN_LF, CNT_LF_PRE_1);
+				}
+				response.duty_cycle.range = request->duty_cycle;
+				response.duty_cycle.value = counter_MeasureDuty(2000);
+				measurement = GUI_MEASURE_DUTY;
+				range = request->duty_cycle;
+			}
+			uartProtocol_SendResponse(&response);
+			communicationEstablished = 1;
 		}
 	} while (!joy_Pressed(JOY_LEFT));
 }
