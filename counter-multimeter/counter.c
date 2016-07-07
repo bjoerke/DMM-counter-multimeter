@@ -123,8 +123,8 @@ uint8_t cnt_GetOptimalPrescaler(uint32_t estimate) {
 	return pre;
 }
 
-uint32_t cnt_TakeMeasurement(uint8_t range) {
-	if (range == COUNTER_RANGE_NONE)
+uint32_t cnt_TakeMeasurement(uint8_t *range) {
+	if (*range == COUNTER_RANGE_NONE)
 		// don't take measurement
 		return 0;
 	// check TTL input first
@@ -147,7 +147,7 @@ uint32_t cnt_TakeMeasurement(uint8_t range) {
 //	UART_PutLongInteger(estimateLF);
 //	UART_PutChar('\n');
 	// calculate prescaler
-	switch (range) {
+	switch (*range) {
 	case COUNTER_RANGE_AUTO:
 		if (estimateTTL == 0) {
 			// no input signal at TTL input
@@ -157,11 +157,34 @@ uint32_t cnt_TakeMeasurement(uint8_t range) {
 			// select prescaler
 			counter_SelectInput(CNT_IN_LF, Prescaler);
 			estimate = estimateLF;
+			// change range
+			switch (Prescaler) {
+			case CNT_LF_PRE_1:
+				*range = COUNTER_RANGE_4MHz;
+				break;
+			case CNT_LF_PRE_4:
+				*range = COUNTER_RANGE_16MHz;
+				break;
+			case CNT_LF_PRE_8:
+				*range = COUNTER_RANGE_32MHz;
+				break;
+			case CNT_LF_PRE_16:
+				*range = COUNTER_RANGE_64MHz;
+				break;
+			case CNT_LF_PRE_32:
+				*range = COUNTER_RANGE_128MHz;
+				break;
+//			case CNT_LF_PRE_64:
+//				*range = COUNTER_RANGE_256MHz;
+//				break;
+			}
 		} else {
 			// using TTL with prescaler = 1
 			counter_SelectInput(CNT_IN_TTL, CNT_TTL_PRE_1);
 			Prescaler = CNT_TTL_PRE_1;
 			estimate = estimateTTL;
+			// change range
+			*range = COUNTER_RANGE_4MHz_TTL;
 		}
 		break;
 	case COUNTER_RANGE_4MHz_TTL:

@@ -79,6 +79,6 @@ uint8_t cnt_GetOptimalPrescaler(uint32_t estimate);
  * \param range Measurement range (see \ref counter_ranges)
  * \return measured frequency in Hz
  */
-uint32_t cnt_TakeMeasurement(uint8_t range);
+uint32_t cnt_TakeMeasurement(uint8_t *range);
 
 #endif
