@@ -10,6 +10,7 @@
 #define INCUART_PROTO_H_
 
 #include <stdint.h>
+#include "systime.h"
 
 typedef struct __attribute__((packed))
 {
@@ -72,9 +73,10 @@ void uartProtocol_Init(void);
 
 /** 
  * Waits for a request
+ * @param timeout Maximum wait time in ms (use 0 to wait indefinitely)
  * @return the request received
  */
-request* uartProtocol_WaitRequest(void);
+request* uartProtocol_WaitRequest(uint16_t timeout);
 
 /** 
  * Sends a response
